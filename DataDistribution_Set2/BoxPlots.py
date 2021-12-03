@@ -5,7 +5,7 @@ import ds_charts as ds
 from pandas.plotting import register_matplotlib_converters
 
 register_matplotlib_converters()
-filename = '/Users/miguelferreira/Documents/IST/1Ano/2P/CD/air_quality_tabular.csv'
+filename = '../data/air_quality_tabular.csv'
 data = pd.read_csv(filename, index_col='date', na_values='', parse_dates=True, infer_datetime_format=True)
 
 print(data.isna().sum() / (len(data)) * 100)  # Relative missing values

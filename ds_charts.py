@@ -251,36 +251,25 @@ def dummify(df, vars_to_dummify):
     final_df = concat([df[other_vars], dummy], axis=1)
     return final_df
 
-
-def get_variable_types(df):
-    NR_SYMBOLS = 10
-    variable_types = {'binary': [], 'numeric': [], 'date': [], 'symbolic': []}
+def get_variable_types(df: DataFrame) -> dict:
+    variable_types: dict = {
+        'Numeric': [],
+        'Binary': [],
+        'Date': [],
+        'Symbolic': []
+    }
     for c in df.columns:
-        mv = df[c].isna().sum()
-        uniques = df[c].unique()
-        if mv == 0:
-            if len(uniques) == 2:
-                variable_types['binary'].append(c)
-                df[c].astype('bool')
-            elif df[c].dtype == 'datetime64':
-                variable_types['date'].append(c)
-            elif len(uniques) < NR_SYMBOLS:
-                df[c].astype('category')
-                variable_types['symbolic'].append(c)
-            else:
-                variable_types['numeric'].append(c)
+        uniques = df[c].dropna(inplace=False).unique()
+        if len(uniques) == 2:
+            variable_types['Binary'].append(c)
+            df[c].astype('bool')
+        elif df[c].dtype == 'datetime64':
+            variable_types['Date'].append(c)
+        elif df[c].dtype == 'int':
+            variable_types['Numeric'].append(c)
+        elif df[c].dtype == 'float':
+            variable_types['Numeric'].append(c)
         else:
-            uniques = [v for v in uniques if not isnan(v)]
-            values = [v for v in uniques if isinstance(v,str)]
-            if len(uniques) == 2:
-                variable_types['binary'].append(c)
-            elif len(values) == len(uniques):
-                df[c].astype('category')
-                variable_types['symbolic'].append(c)
-            else:
-                values = [v for v in uniques if isinstance(v, datetime)]
-                if len(values) == len(uniques):
-                    variable_types['date'].append(c)
-                else:
-                    variable_types['numeric'].append(c)
+            df[c].astype('category')
+            variable_types['Symbolic'].append(c)
     return variable_types

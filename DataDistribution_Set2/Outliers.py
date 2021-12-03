@@ -10,7 +10,7 @@ from pandas import Series
 from scipy.stats import norm, expon, lognorm
 
 register_matplotlib_converters()
-filename = '/Users/miguelferreira/Documents/IST/1Ano/2P/CD/air_quality_tabular.csv'
+filename = '../data/air_quality_tabular.csv'
 data = pd.read_csv(filename, index_col='date', na_values='', parse_dates=True, infer_datetime_format=True)
 
 NR_STDEV: int = 2
