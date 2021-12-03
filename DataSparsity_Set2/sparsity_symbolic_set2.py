@@ -21,6 +21,7 @@ for i in range(len(symbolic_vars)):
         axs[i, j-1].set_title("%s x %s"%(var1,var2))
         axs[i, j-1].set_xlabel(var1)
         axs[i, j-1].set_ylabel(var2)
-        axs[i, j-1].scatter(data[var1], data[var2])
+        print(data[var1])
+        axs[i, j-1].scatter(data[var1].astype(str), data[var2].astype(str))
 savefig(f'../DataSparsity_Set2/images/sparsity_study_symbolic.png')
 show()
