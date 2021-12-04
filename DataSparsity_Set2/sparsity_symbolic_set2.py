@@ -5,7 +5,7 @@ from ds_charts import HEIGHT, get_variable_types
 
 register_matplotlib_converters()
 filename = '../data/air_quality_tabular.csv'
-data = read_csv(filename, index_col='date', parse_dates=True, infer_datetime_format=True)
+data = read_csv(filename, index_col='FID', parse_dates=True, infer_datetime_format=True)
 
 symbolic_vars = get_variable_types(data)['Symbolic']
 if [] == symbolic_vars:
@@ -21,7 +21,6 @@ for i in range(len(symbolic_vars)):
         axs[i, j-1].set_title("%s x %s"%(var1,var2))
         axs[i, j-1].set_xlabel(var1)
         axs[i, j-1].set_ylabel(var2)
-        print(data[var1])
         axs[i, j-1].scatter(data[var1].astype(str), data[var2].astype(str))
 savefig(f'../DataSparsity_Set2/images/sparsity_study_symbolic.png')
 show()
