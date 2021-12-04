@@ -1,3 +1,6 @@
+![CoverDS](https://user-images.githubusercontent.com/11770916/144721887-aad5fd65-399a-47cc-b061-cb7bf8fc9278.png)
+
+
 # Data Science project
 
 ## Project for the data science course for 2021-2022
