@@ -1,5 +1,4 @@
-![CoverDS](https://user-images.githubusercontent.com/11770916/144721887-aad5fd65-399a-47cc-b061-cb7bf8fc9278.png)
-
+<img src="https://user-images.githubusercontent.com/11770916/144721887-aad5fd65-399a-47cc-b061-cb7bf8fc9278.png" width="640" height="320">
 
 # Data Science project
 
