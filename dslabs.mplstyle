@@ -1,9 +1,10 @@
 # To check more avaialble options see:
 # https://matplotlib.org/tutorials/introductory/customizing.html
 
-font.serif : Asap-Regular
-font.variant : normal
-font.size : 10
+font.sans-serif   : Futura-Medium
+font.family  : Futura
+font.weight  : bold
+font.size    : 10
 
 # AXES
 axes.titlesize : small

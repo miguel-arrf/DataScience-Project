@@ -13,6 +13,7 @@ if [] == numeric_vars:
 
 rows, cols = len(numeric_vars)-1, len(numeric_vars)-1
 fig, axs = subplots(rows, cols, figsize=(cols*HEIGHT, rows*HEIGHT), squeeze=False)
+
 for i in range(len(numeric_vars)):
     var1 = numeric_vars[i]
     for j in range(i+1, len(numeric_vars)):
