@@ -12,7 +12,7 @@ if [] == variables:
     raise ValueError('There are no numeric variables.')
 
 rows = len(variables)
-bins = (10, 100, 1000)
+bins = (2, 5, 10, 100, 1000)
 cols = len(bins)
 fig, axs = subplots(rows, cols, figsize=(cols*HEIGHT, rows*HEIGHT), squeeze=False)
 

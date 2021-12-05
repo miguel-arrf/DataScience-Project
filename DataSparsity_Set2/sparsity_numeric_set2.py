@@ -5,7 +5,7 @@ from ds_charts import get_variable_types, HEIGHT
 
 register_matplotlib_converters()
 filename = '../data/air_quality_tabular.csv'
-data = read_csv(filename, index_col='date', parse_dates=True, infer_datetime_format=True)
+data = read_csv(filename, index_col='FID', parse_dates=True, infer_datetime_format=True)
 
 numeric_vars = get_variable_types(data)['Numeric']
 if [] == numeric_vars:
