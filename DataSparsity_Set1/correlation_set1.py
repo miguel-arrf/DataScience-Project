@@ -68,6 +68,6 @@ grid = grid.map_diag(plt.hist, bins=10, edgecolor='k', color='darkred')
 # Map a density plot to the lower triangle
 grid = grid.map_lower(scatterFilter, color='darkred')
 
-savefig(f'../DataSparsity_Set1/images/teste.png')
+savefig(f'../DataSparsity_Set1/images/sparsity_symbolic_relevant_variables.png')
 
 plt.show()

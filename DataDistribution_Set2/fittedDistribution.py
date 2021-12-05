@@ -14,6 +14,7 @@ filename = '../data/air_quality_tabular.csv'
 data = pd.read_csv(filename, index_col='date', na_values='', parse_dates=True, infer_datetime_format=True)
 
 data = data[ ["CO_Min", "CO_Max", "NO2_Min", "NO2_Max"]]
+# TODO: Add stackoverflow link
 data = np.array_split(data, 6)[0]
 print(data.describe())
 print(data.shape)
