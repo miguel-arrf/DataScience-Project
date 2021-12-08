@@ -10,7 +10,7 @@ from matplotlib.pyplot import savefig, show
 
 register_matplotlib_converters()
 filename = '../data/air_quality_tabular.csv'
-data = pd.read_csv(filename, index_col='date', na_values='', parse_dates=True, infer_datetime_format=True)
+data = pd.read_csv(filename, index_col='FID', na_values='', parse_dates=True, infer_datetime_format=True)
 
 
 data.boxplot(rot=45)

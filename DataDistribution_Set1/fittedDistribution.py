@@ -15,7 +15,7 @@ register_matplotlib_converters()
 currentPath = "/".join(os.path.abspath(__file__).split("/")[:-1]) 
 filename =  currentPath + '/../data/NYC_collisions_tabular.csv'
 
-data = pd.read_csv(filename, index_col="COLLISION_ID", na_values='', parse_dates=True, infer_datetime_format=True)
+data = pd.read_csv(filename, index_col="UNIQUE_ID", na_values='', parse_dates=True, infer_datetime_format=True)
 
 def compute_known_distributions(x_values: list) -> dict:
     distributions = dict()

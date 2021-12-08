@@ -1,26 +1,23 @@
-import numpy as np
-from matplotlib import pyplot as plt
-from matplotlib.pyplot import figure, show, subplots, Axes
-from ds_charts import multiple_bar_chart, HEIGHT, multiple_line_chart, bar_chart, choose_grid, get_variable_types
-import pandas as pd
-from pandas.plotting import register_matplotlib_converters
-import ds_charts as ds
-from seaborn import distplot
-from numpy import log
-from pandas import Series
-from scipy.stats import norm, expon, lognorm
-
 import os
+
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+from matplotlib.pyplot import figure, show, subplots
+from pandas.plotting import register_matplotlib_converters
+from seaborn import distplot
+
+import ds_charts as ds
+from ds_charts import multiple_bar_chart, HEIGHT
 
 register_matplotlib_converters()
 
-currentPath = "/".join(os.path.abspath(__file__).split("/")[:-1]) 
-filename =  currentPath + '/../data/NYC_collisions_tabular.csv'
+currentPath = "/".join(os.path.abspath(__file__).split("/")[:-1])
+filename = currentPath + '/../data/NYC_collisions_tabular.csv'
 
-data = pd.read_csv(filename, index_col="COLLISION_ID", na_values='', parse_dates=True, infer_datetime_format=True)
+data = pd.read_csv(filename, index_col="UNIQUE_ID", na_values='', parse_dates=True, infer_datetime_format=True)
 
 NR_STDEV: int = 2
-
 
 numeric_data = data.select_dtypes(include=np.number)
 numeric_vars = numeric_data.columns.tolist()
@@ -55,7 +52,7 @@ print(outliers_stdev)
 
 rows, cols = ds.choose_grid(len(numeric_vars))
 print("rows: {}, cols: {}".format(rows, cols))
-fig, axs = subplots(rows, cols, figsize=(cols * HEIGHT, rows * HEIGHT))
+fig, axs = subplots(rows, cols, figsize=(cols * HEIGHT, rows * HEIGHT), squeeze=False)
 i, j = 0, 0
 for n in range(len(numeric_vars)):
     axs[i, j].set_title('Histogram for %s' % numeric_vars[n])
@@ -66,13 +63,11 @@ for n in range(len(numeric_vars)):
 plt.savefig('images/single_histograms_numeric.png')
 show()
 
-fig, axs = subplots(rows, cols, figsize=(cols * HEIGHT, rows * HEIGHT))
+fig, axs = subplots(rows, cols, figsize=(cols * HEIGHT, rows * HEIGHT), squeeze=False)
 i, j = 0, 0
 for n in range(len(numeric_vars)):
-    
     axs[i, j].set_title('Histogram with trend for %s' % numeric_vars[n])
     distplot(data[numeric_vars[n]].dropna().values, norm_hist=True, ax=axs[i, j], axlabel=numeric_vars[n])
     i, j = (i + 1, 0) if (n + 1) % cols == 0 else (i, j + 1)
-plt.savefig('/images/histograms_trend_numeric.png')
+plt.savefig('images/histograms_trend_numeric.png')
 show()
-

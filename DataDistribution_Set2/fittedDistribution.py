@@ -7,13 +7,13 @@ from pandas.plotting import register_matplotlib_converters
 from scipy.stats import norm, expon, lognorm
 
 import ds_charts as ds
-from ds_charts import HEIGHT, multiple_line_chart, bar_chart, choose_grid, get_variable_types
+from ds_charts import HEIGHT, multiple_line_chart
 
 register_matplotlib_converters()
 filename = '../data/air_quality_tabular.csv'
-data = pd.read_csv(filename, index_col='date', na_values='', parse_dates=True, infer_datetime_format=True)
+data = pd.read_csv(filename, index_col='FID', na_values='', parse_dates=True, infer_datetime_format=True)
 
-data = data[ ["CO_Min", "CO_Max", "NO2_Min", "NO2_Max"]]
+data = data[["CO_Min", "CO_Max", "NO2_Min", "NO2_Max"]]
 # TODO: Add stackoverflow link
 data = np.array_split(data, 6)[0]
 print(data.describe())
@@ -69,4 +69,3 @@ for n in range(len(numeric_vars)):
     i, j = (i + 1, 0) if (n + 1) % cols == 0 else (i, j + 1)
 savefig(f'../DataDistribution_Set2/images/best_fit_for_valuable_features.png')
 show()
-
