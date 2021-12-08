@@ -6,7 +6,7 @@ from ds_charts import HEIGHT, bar_chart, choose_grid, get_variable_types
 
 register_matplotlib_converters()
 filename = '../data/air_quality_tabular.csv'
-data = pd.read_csv(filename, index_col='date', na_values='', parse_dates=True, infer_datetime_format=True)
+data = pd.read_csv(filename, index_col='FID', na_values='', parse_dates=True, infer_datetime_format=True)
 
 symbolic_vars = get_variable_types(data)['Symbolic']
 print("symbolic_vars: ", symbolic_vars)

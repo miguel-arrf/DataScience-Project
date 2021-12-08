@@ -12,11 +12,11 @@ from scipy.stats import norm, expon, lognorm
 
 register_matplotlib_converters()
 filename = '../data/air_quality_tabular.csv'
-data = pd.read_csv(filename, index_col='date', na_values='', parse_dates=True, infer_datetime_format=True)
+data = pd.read_csv(filename, index_col='FID', na_values='', parse_dates=True, infer_datetime_format=True)
 
 NR_STDEV: int = 2
 
-data = data.drop('FID', axis=1)
+#data = data.drop('FID', axis=1)
 
 numeric_data = data.select_dtypes(include=np.number)
 numeric_vars = numeric_data.columns.tolist()

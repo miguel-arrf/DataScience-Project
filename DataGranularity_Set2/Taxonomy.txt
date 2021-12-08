@@ -1,0 +1,3 @@
+Os valores de Co2 e das restantes features podem ser agrupados conforme sejam baixos, médios ou altos quando comparados com os valores de referência tabelados.
+
+Também as províncias podem ser agrupadas por cidades ou grupos superiores conforme as distribuições utilizadas no país de origem.
