@@ -15,7 +15,7 @@ if [] == symbolic_vars:
 rows, cols = len(symbolic_vars)-1, len(symbolic_vars)-1
 fig, axs = subplots(rows, cols, figsize=(cols*HEIGHT, rows*HEIGHT), squeeze=False)
 
-colors = np.where(data["ALARM"] == "Safe", 'y', 'k')
+colors = np.where(data["ALARM"] == "Safe", 'g', 'r')
 
 
 for i in range(len(symbolic_vars)):

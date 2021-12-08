@@ -1,12 +1,7 @@
 import datetime
 
-import matplotlib.pyplot
-import pandas
 from pandas import read_csv
 from pandas.tseries.holiday import USFederalHolidayCalendar
-
-from ds_charts import get_variable_types, choose_grid, HEIGHT
-from matplotlib.pyplot import subplots, savefig, show
 
 file = 'NYC_collisions_tabular'
 filename = 'data/NYC_collisions_tabular.csv'

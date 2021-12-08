@@ -1,8 +1,7 @@
-from pandas import read_csv
-from ds_charts import get_variable_types, choose_grid, HEIGHT
-from matplotlib.pyplot import subplots, savefig, show
 import datetime
+
 from chinese_holiday import get_holiday_data
+from pandas import read_csv
 
 file = 'air_quality_tabular'
 filename = 'data/air_quality_tabular.csv'
