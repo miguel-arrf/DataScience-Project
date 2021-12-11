@@ -48,6 +48,6 @@ for tick in axs[0, 1].get_xticklabels():
 for tick in axs[0, 2].get_xticklabels():
     tick.set_rotation(90)
 
-
+plt.savefig(f'../Scaling_Set2/images/scaling.png')
 show()
 

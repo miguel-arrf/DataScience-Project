@@ -113,9 +113,9 @@ def multiple_bar_chart(xvalues: list, yvalues: dict, ax: plt.Axes = None, title:
 
 
 def plot_evaluation_results(labels: ndarray, trn_y, prd_trn, tst_y, prd_tst):
-    cnf_mtx_trn = metrics.confusion_matrix(trn_y, prd_trn, labels)
+    cnf_mtx_trn = metrics.confusion_matrix(trn_y, prd_trn)
     tn_trn, fp_trn, fn_trn, tp_trn = cnf_mtx_trn.ravel()
-    cnf_mtx_tst = metrics.confusion_matrix(tst_y, prd_tst, labels)
+    cnf_mtx_tst = metrics.confusion_matrix(tst_y, prd_tst)
     tn_tst, fp_tst, fn_tst, tp_tst = cnf_mtx_tst.ravel()
 
     evaluation = {'Accuracy': [(tn_trn + tp_trn) / (tn_trn + tp_trn + fp_trn + fn_trn),
