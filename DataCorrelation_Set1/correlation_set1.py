@@ -26,6 +26,14 @@ symbolic_vars = get_variable_types(data)['Symbolic']
 for symbolic_var in symbolic_vars:
     data[symbolic_var] = pd.factorize(data[symbolic_var])[0]
 
+good_columns = []
+for column in data.columns:
+    if "_ID" not in column:
+        good_columns.append(column)
+
+data = data[good_columns]
+
+
 corr_mtx = abs(data.corr())
 
 heatmap(abs(corr_mtx), xticklabels=corr_mtx.columns, yticklabels=corr_mtx.columns, annot=True, cmap='Blues')
