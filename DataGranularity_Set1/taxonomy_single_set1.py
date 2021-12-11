@@ -1,8 +1,9 @@
 import matplotlib.pyplot
 import pandas
-from pandas import read_csv
-from ds_charts import get_variable_types, choose_grid, HEIGHT
 from matplotlib.pyplot import subplots, savefig, show
+from pandas import read_csv
+
+from ds_charts import choose_grid, HEIGHT
 
 filename = '../data/NYC_collisions_tabular.csv'
 data = read_csv(filename)
