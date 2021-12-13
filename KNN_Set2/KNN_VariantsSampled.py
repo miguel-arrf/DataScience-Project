@@ -15,6 +15,7 @@ target = 'ALARM'
 
 
 df = read_csv(f'{filename}')
+df = df.sample(frac=0.3)
 
 symbolic_vars = get_variable_types(df)['Symbolic']
 for symbolic_var in symbolic_vars:
@@ -54,7 +55,7 @@ for d in dist:
 
 figure()
 multiple_line_chart(nvalues, values, title='KNN variants', xlabel='n', ylabel='accuracy', percentage=True)
-savefig(currentPath + '/images/air_quality_tabular_knn_study.png')
+savefig(currentPath + '/images/air_quality_tabular_knn_sampled_study.png')
 show()
 print('Best results with %d neighbors and %s'%(best[0], best[1]))
 
@@ -63,5 +64,5 @@ clf.fit(trnX, trnY)
 prd_trn = clf.predict(trnX)
 prd_tst = clf.predict(tstX)
 plot_evaluation_results(labels, trnY, prd_trn, tstY, prd_tst)
-savefig(currentPath + '/images/air_quality_tabular_knn_best.png')
+savefig(currentPath + '/images/air_quality_tabular_knn_sampled_best.png')
 show()
