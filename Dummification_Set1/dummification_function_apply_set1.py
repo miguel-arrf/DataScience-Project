@@ -1,3 +1,5 @@
+from sklearn.preprocessing import OrdinalEncoder
+
 def apply_set1_imputation(data, columns, type_of_encoder):
     encoder = type_of_encoder(cols=columns, verbose=False)
     columns = []
@@ -6,4 +8,4 @@ def apply_set1_imputation(data, columns, type_of_encoder):
         if column != "PERSON_INJURY":
             columns.append(column)
 
-    return encoder.fit_transform(data[columns], data["PERSON_INJURY"])
+    return [encoder.fit_transform(data[columns], data["PERSON_INJURY"]), encoder]
