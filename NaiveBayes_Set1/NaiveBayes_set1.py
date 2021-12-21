@@ -7,10 +7,12 @@ from sklearn.naive_bayes import GaussianNB, BernoulliNB, MultinomialNB
 
 from ds_charts import plot_evaluation_results, bar_chart, get_variable_types
 
-file_tag = 'NYC_collisions'
-filename = '../NaiveBayes_Set1/minMaxScaling.csv'
+file_tag = 'NYC_collisions_SMOTE'
+filename = '../NaiveBayes_Set1/data/mostFrequent_SMOTE.csv'
 
 df = read_csv(f'{filename}')
+print("shape: ", df.shape)
+
 
 symbolic_vars = get_variable_types(df)['Symbolic']
 for symbolic_var in symbolic_vars:
