@@ -9,8 +9,9 @@ import pandas as pd
 import datetime
 
 from chinese_holiday import is_holiday, get_holiday_data
+from pandas import read_csv
 
-
+'''
 def sunday_saturday_definer():
     date_for_checking = datetime.datetime(day = 30, month= 12, year= 2021)
     print(date_for_checking.weekday())
@@ -42,3 +43,14 @@ def is_holiday_2021(date):
 
 
 print(is_holiday_2021(''))
+'''
+import pandas as pd
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
+
+filename = 'data/NYC_collisions_tabular.csv'
+df = read_csv(filename, index_col='UNIQUE_ID', na_values='', parse_dates=True,infer_datetime_format=True)
+#print(df[df.duplicated(['VEHICLE_ID'], keep=False)]["VEHICLE_ID"])
+
+print(df[df.duplicated(['VEHICLE_ID'], keep=False)])

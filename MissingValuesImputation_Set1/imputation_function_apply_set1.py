@@ -17,10 +17,17 @@ def apply_set1_imputation(data):
             if pandas.isna(row["SAFETY_EQUIPMENT"]):
                 data.at[index, "SAFETY_EQUIPMENT"] = "Unknown"
 
-            data.at[index, "PED_LOCATION"] = "NotApplicable"
+            if row["PERSON_TYPE"] != "Occupant":
+                data.at[index, "PED_LOCATION"] = "NotApplicable"
 
-            data.at[index, "CONTRIBUTING_FACTOR_2"] = "NotApplicable"
-            data.at[index, "CONTRIBUTING_FACTOR_1"] = "NotApplicable"
+            if row["PERSON_TYPE"] == "Occupant":
+                if row["CONTRIBUTING_FACTOR_2"] != "Driver Inattention/Distraction":
+                    data.at[index, "CONTRIBUTING_FACTOR_2"] = "NotApplicable"
+                if row["CONTRIBUTING_FACTOR_1"] != "Driver Inattention/Distraction":
+                    data.at[index, "CONTRIBUTING_FACTOR_1"] = "NotApplicable"
+            else:
+                data.at[index, "CONTRIBUTING_FACTOR_2"] = "NotApplicable"
+                data.at[index, "CONTRIBUTING_FACTOR_1"] = "NotApplicable"
 
             if pandas.isna(row["EJECTION"]):
                 data.at[index, "EJECTION"] = "Unknown"
@@ -30,3 +37,9 @@ def apply_set1_imputation(data):
 
             if pandas.isna(row["PED_ACTION"]):
                 data.at[index, "PED_ACTION"] = "NotApplicable"
+
+            if pandas.isna(row["PED_LOCATION"]):
+                data.at[index, "PED_LOCATION"] = "NotApplicable"
+
+        if pandas.isna(row["VEHICLE_ID"]):
+            data.at[index, "VEHICLE_ID"] = -1
