@@ -1,4 +1,0 @@
-For time hierarchy, maybe grouping different times would be worth, for example: Dawn, Morning, Lunch time, Noon, Dinner time, Night, Dawn... In order to see the different crashes
-during those times. For Date hierarchy that might be more difficult but we could group the dates into three different groups: Weekday, Weekend and Holiday.
-
-With the opening and closing of factories and with less people utilising their cars there will probably be possible to observe a 'daily' seasonality of emissions.
