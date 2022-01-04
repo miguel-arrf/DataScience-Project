@@ -1,0 +1,3 @@
+For set 1, we only have four numeric variables and three of them are IDs so we won't be changing those for sure. The other numeric variable is the
+person's age and that one might be worth grouping,we can't actually see if the bins are worth something, since we have some outliers but we can deal and group the data in different
+age groups like children, teens, adults, elders...
