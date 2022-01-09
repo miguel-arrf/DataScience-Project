@@ -9,18 +9,18 @@ from sklearn.tree import DecisionTreeClassifier
 
 from ds_charts import get_variable_types, multiple_line_chart, plot_evaluation_results
 
-target = 'PERSON_INJURY'
-df = read_csv(f'../data/encoded_scaled.csv')
+target = 'ALARM'
+df = read_csv(f'../../data/air_quality_tabular.csv')
+df = df.dropna()
 symbolic_vars = get_variable_types(df)['Symbolic']
 for symbolic_var in symbolic_vars:
     df[symbolic_var] = pd.factorize(df[symbolic_var])[0]
 
 binary_vars = get_variable_types(df)['Binary']
 for binary_var in binary_vars:
-    #if binary_var != "PERSON_INJURY":
     df[binary_var] = pd.factorize(df[binary_var])[0]
-y = df['PERSON_INJURY']
-df = df.drop('PERSON_INJURY', 1)
+y = df['ALARM']
+df = df.drop('ALARM', 1)
 
 #y = y.replace({0: 1, 1: 0})
 trnX, tstX, trnY, tstY = train_test_split(df, y, test_size=0.3, random_state=1,
@@ -55,8 +55,8 @@ for score in [(accuracy_score, 'accuracy'), (precision_score, 'precision'), (rec
                 tree = DecisionTreeClassifier(max_depth=d, criterion=f, min_impurity_decrease=imp)
                 tree.fit(trnX, trnY)
                 prdY = tree.predict(trnX)
-                yvalues.append(score[0](trnY, prdY))
                 print("{} : {}".format(score[1], score[0](trnY, prdY)))
+                yvalues.append(score[0](trnY, prdY))
 
                 if yvalues[-1] > last_best:
                     best = (f, d, imp, prdY) 
