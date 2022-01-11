@@ -53,7 +53,7 @@ df = concat([tmp, df_sb, df_bool], axis=1)
 
 trnX, tstX, trnY, tstY = train_test_split(df, df['ALARM'], test_size=0.3, random_state=1)
 balanceData = BalanceData(dataframe=pd.concat([trnX], axis=1))
-result_smote = balanceData.smote()
+result_smote = smote()
 trnX = result_smote.copy()
 trnY = result_smote['ALARM']
 

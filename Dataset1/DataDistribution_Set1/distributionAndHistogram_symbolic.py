@@ -8,12 +8,14 @@ import os
 
 register_matplotlib_converters()
 currentPath = "/".join(os.path.abspath(__file__).split("/")[:-1])
-filename = currentPath + '/../data/NYC_collisions_tabular.csv'
+filename =   '../../data/NYC_collisions_tabular.csv'
 
 data = pd.read_csv(filename, index_col="UNIQUE_ID", na_values='', parse_dates=True, infer_datetime_format=True)
+data = data.drop(["VEHICLE_ID", "COLLISION_ID", "PERSON_ID"], axis=1)
 data = data.loc[(data['PERSON_AGE'] < 140) & (data['PERSON_AGE'] >= 0)]
 
 symbolic_vars = get_variable_types(data)['Symbolic']
+
 if not symbolic_vars:
     raise ValueError('There are no symbolic variables.')
 print(symbolic_vars)
@@ -29,6 +31,7 @@ for n in range(len(symbolic_vars)):
     bar_chart(new_counts_index, counts.values, ax=axs[i, j], title='Histogram for %s' % symbolic_vars[n],
               xlabel=symbolic_vars[n], ylabel='nr records', percentage=False)
     i, j = (i + 1, 0) if (n + 1) % cols == 0 else (i, j + 1)
+print("já está")
 savefig(currentPath + "/images/histograms_symbolic.png", dpi=300)
 
 '''

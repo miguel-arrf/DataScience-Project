@@ -7,10 +7,13 @@ from seaborn import heatmap
 from ds_charts import get_variable_types
 
 register_matplotlib_converters()
-filename = '../Dataset1/data/grouped.csv'
-data = read_csv(filename, index_col='UNIQUE_ID', parse_dates=True, infer_datetime_format=True)
+filename =   '../../data/NYC_collisions_tabular.csv'
+data = read_csv(filename)
+data = data.drop(["VEHICLE_ID", "COLLISION_ID", "PERSON_ID", "UNIQUE_ID"], axis=1)
+data = data.loc[(data['PERSON_AGE'] < 140) & (data['PERSON_AGE'] >= 0)]
 
-data = data.loc[data["PERSON_INJURY"] == 'Injured']
+
+data = data.loc[data["PERSON_INJURY"] == 'Killed']
 
 
 data['PERSON_INJURY'] = pd.factorize(data['PERSON_INJURY'])[0]
@@ -45,5 +48,5 @@ sns.set(font_scale=1.1)
 #, cmap='Blues'
 heatmap(abs(corr_mtx), xticklabels=corr_mtx.columns, yticklabels=corr_mtx.columns, annot=True,  cmap='Blues')
 title('Correlation analysis')
-savefig(f'../DataCorrelation_Set1/images/correlationInjured.png')
+savefig(f'../DataCorrelation_Set1/images/correlationKilled.png')
 show()

@@ -47,8 +47,6 @@ def apply_set1_imputation(data):
             if pandas.isna(row["PED_LOCATION"]):
                 data.at[index, "PED_LOCATION"] = "NotApplicable"
 
-        if pandas.isna(row["VEHICLE_ID"]):
-            data.at[index, "VEHICLE_ID"] = -1
 
         if row["PED_LOCATION"] == "Does Not Apply":
             data.at[index, "PED_LOCATION"] = "NotApplicable"

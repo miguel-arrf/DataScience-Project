@@ -15,9 +15,11 @@ register_matplotlib_converters()
 
 currentPath = "/".join(os.path.abspath(__file__).split("/")[:-1])
 filetag = "encoded_notScaled"
-filename = currentPath + '/../Dataset1/data/' + filetag + '.csv'
+filename =   '../../data/NYC_collisions_tabular.csv'
 
 data = pd.read_csv(filename, index_col="UNIQUE_ID", na_values='', parse_dates=True, infer_datetime_format=True)
+data = data.drop(["VEHICLE_ID", "COLLISION_ID"], axis=1)
+
 data = data.loc[(data['PERSON_AGE'] < 140) & (data['PERSON_AGE'] >= 0)]
 
 from matplotlib.pyplot import figure, savefig, show
