@@ -6,16 +6,21 @@ import matplotlib
 import datetime
 from pandas.tseries.holiday import USFederalHolidayCalendar
 
-filename = '../data/NYC_collisions_tabular.csv'
+filename =   '../../data/NYC_collisions_tabular.csv'
 data = read_csv(filename)
+data = data.drop(["VEHICLE_ID", "COLLISION_ID", "PERSON_ID", "UNIQUE_ID"], axis=1)
+data = data.loc[(data['PERSON_AGE'] < 140) & (data['PERSON_AGE'] >= 0)]
 
 values = {'nr records': data.shape[0], 'nr variables': data.shape[1]}
 date_dict = {"WEEKDAY": 0, "WEEKEND": 1, "HOLIDAY": 2}
 time_dict = {"DAWN": 0, "MORNING": 1, "LUNCH TIME": 2, "AFTERNOON": 3, "DINNER TIME": 4, "NIGHT": 5}
 
+
+cal = USFederalHolidayCalendar()
+holidays = cal.holidays(start='2021-01-01', end='2021-11-17').to_pydatetime()
+
+
 def transform_date(v):
-    cal = USFederalHolidayCalendar()
-    holidays = cal.holidays(start='2021-01-01', end='2021-11-17').to_pydatetime()
     date = str(v).split("/")
     date_for_checking = datetime.datetime(day=int(date[0]), month=int(date[1]), year=int(date[2]))
     if date_for_checking.weekday() < 5:

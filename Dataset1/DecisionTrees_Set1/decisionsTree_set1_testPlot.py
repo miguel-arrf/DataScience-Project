@@ -11,17 +11,10 @@ from sklearn.tree import DecisionTreeClassifier
 from ds_charts import get_variable_types, multiple_line_chart, plot_evaluation_results
 
 target = 'PERSON_INJURY'
-df = read_csv(f'../data/encoded_scaled.csv')
-symbolic_vars = get_variable_types(df)['Symbolic']
-for symbolic_var in symbolic_vars:
-    df[symbolic_var] = pd.factorize(df[symbolic_var])[0]
-
-binary_vars = get_variable_types(df)['Binary']
-for binary_var in binary_vars:
-    #if binary_var != 'PERSON_INJURY':
-    df[binary_var] = pd.factorize(df[binary_var])[0]
+df = read_csv(f'../data/for_tree_labs.csv')
 y = df['PERSON_INJURY']
 df = df.drop('PERSON_INJURY', 1)
+df["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
 
 #y = y.replace({0: 1, 1: 0})
 trnX, tstX, trnY, tstY = train_test_split(df, y, test_size=0.3, random_state=1,
@@ -43,11 +36,12 @@ best_model = None
 
 
 figure()
-fig, axs = subplots(3, 2, figsize=(16, 8), dpi=150, squeeze=False)
+fig, axs = subplots(2, 2, figsize=(16, 8), dpi=150, squeeze=False)
 fig.tight_layout(pad=3.0)
 
 row = 0
-for score in [(accuracy_score, 'accuracy'), (precision_score, 'precision'), (recall_score, 'recall')]:
+#(accuracy_score, 'accuracy')
+for score in [ (precision_score, 'precision'), (recall_score, 'recall')]:
 
     for k in range(len(criteria)):
         f = criteria[k]
@@ -58,8 +52,13 @@ for score in [(accuracy_score, 'accuracy'), (precision_score, 'precision'), (rec
                 tree = DecisionTreeClassifier(max_depth=d, criterion=f, min_impurity_decrease=imp)
                 tree.fit(trnX, trnY)
                 prdY = tree.predict(tstX)
-                yvalues.append(score[0](tstY, prdY))
-                print("{} : {}".format(score[1], score[0](tstY, prdY)))
+
+                if score[1] != "accuracy":
+                    yvalues.append(score[0](tstY, prdY, pos_label="Killed"))
+                else:
+                    yvalues.append(score[0](tstY, prdY))
+
+                print("{} : {}".format(score[1], score[0](tstY, prdY, pos_label="Killed")))
 
                 if yvalues[-1] > last_best:
                     best = (f, d, imp, prdY)

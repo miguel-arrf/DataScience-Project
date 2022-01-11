@@ -5,8 +5,10 @@ from pandas import read_csv
 
 from ds_charts import choose_grid, HEIGHT
 
-filename = '../data/NYC_collisions_tabular.csv'
+filename =   '../../data/NYC_collisions_tabular.csv'
 data = read_csv(filename)
+data = data.drop(["VEHICLE_ID", "COLLISION_ID", "PERSON_ID", "UNIQUE_ID"], axis=1)
+data = data.loc[(data['PERSON_AGE'] < 140) & (data['PERSON_AGE'] >= 0)]
 
 values = {'nr records': data.shape[0], 'nr variables': data.shape[1]}
 safety_dict = {"NOT EQUIPPED": 0, "UPPER BODY": 1, "LOWER BODY": 2, "HEAD": 3, "AIRBAG": 4, "CHILD RESTRAINT": 5, "OTHER": 6, "HEAD & OTHER": 7, "UPPER BODY & AIRBAG": 8, "AIRBAG & CHILD RESTRAINT": 9}
