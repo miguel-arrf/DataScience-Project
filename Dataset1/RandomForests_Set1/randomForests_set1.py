@@ -24,7 +24,7 @@ print("--")
 print("testY: ", tstY)
 
 n_estimators = [5, 10, 25, 50, 75, 100, 150, 200, 250, 300]
-max_depths = [5, 10, 25]
+max_depths = [2, 3, 5, 10, 25]
 max_features = [.1, .3, .5, .7, .9, 1]
 best = ('', 0, 0)
 last_best = 0
@@ -47,7 +47,6 @@ for k in range(len(max_depths)):
                 best = (d, f, n)
                 last_best = yvalues[-1]
                 best_model = rf
-
         values[f] = yvalues
     multiple_line_chart(n_estimators, values, ax=axs[0, k], title=f'Random Forests with max_depth={d}',
                            xlabel='nr estimators', ylabel='accuracy', percentage=True)
