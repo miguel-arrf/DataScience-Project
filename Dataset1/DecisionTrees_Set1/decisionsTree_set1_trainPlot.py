@@ -55,8 +55,8 @@ for score in [(accuracy_score, 'accuracy'), (precision_score, 'precision'), (rec
                 tree = DecisionTreeClassifier(max_depth=d, criterion=f, min_impurity_decrease=imp)
                 tree.fit(trnX, trnY)
                 prdY = tree.predict(trnX)
-                yvalues.append(score[0](trnY, prdY))
                 print("{} : {}".format(score[1], score[0](trnY, prdY)))
+                yvalues.append(score[0](trnY, prdY))
 
                 if yvalues[-1] > last_best:
                     best = (f, d, imp, prdY) 
