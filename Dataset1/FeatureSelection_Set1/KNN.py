@@ -7,9 +7,9 @@ from ds_charts import plot_evaluation_results, multiple_line_chart, get_variable
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-TAG = 'NYC_collisions_tabular'
+file_tag = 'NYC_collisions_tabular'
 filename = './data/redundant_removed.csv'
-target = "BODILY_INJURY"
+target = "PERSON_INJURY"
 
 
 df = read_csv(filename).sample(frac=0.3)
@@ -52,7 +52,7 @@ def plot_overfitting_study(xvalues, prd_trn, prd_tst, name, xlabel, ylabel):
     evals = {'Train': prd_trn, 'Test': prd_tst}
     figure()
     multiple_line_chart(xvalues, evals, ax = None, title=f'Overfitting {name}', xlabel=xlabel, ylabel=ylabel, percentage=True)
-    savefig('images/overfitting_{name}.png')
+    savefig('images/knn_{file_tag}.png')
 
 d = 'euclidean'
 eval_metric = accuracy_score
