@@ -5,7 +5,7 @@ from seaborn import heatmap
 
 
 
-def select_redundant(corr_mtx, threshold: float) -> tuple[dict, DataFrame]:
+def select_redundant(corr_mtx, threshold: float):
     if corr_mtx.empty:
         return {}
 
@@ -35,7 +35,7 @@ def drop_redundant(data: DataFrame, vars_2drop: dict) -> DataFrame:
     return df
 
 
-def select_low_variance(data: DataFrame, threshold: float) -> list:
+def select_low_variance(data, threshold):
     lst_variables = []
     lst_variances = []
     for el in data.columns:
@@ -45,19 +45,35 @@ def select_low_variance(data: DataFrame, threshold: float) -> list:
             lst_variances.append(value)
 
     print(len(lst_variables), lst_variables)
-    figure(figsize=[10, 4])
+    figure(figsize=[20, 4])
     bar_chart(lst_variables, lst_variances, title='Variance Study', xlabel='variables', ylabel='variance')
     savefig('images/variance_study.png')
-    return lst_variables
+    return lst_variablesf
 
-def main(THRESHOLD = 0.8, filename = "../../data/Set1_noAnomalies_TimeHierarchy.csv"):
+def main(THRESHOLD = 0.6, filename = "../../data/Set1_noAnomalies_TimeHierarchy.csv"):
 
     data = read_csv(filename, na_values='?')
+    data = data.drop(["UNIQUE_ID"], axis=1)
+    for col in data.columns:
+        if "ID" in col:
+            data = data.drop([col], axis=1)
+
     varsToFactorize = get_variable_types(data)['Symbolic'] + get_variable_types(data)['Binary']
     for var in varsToFactorize:
         data[var] = factorize(data[var])[0]
 
     drop, corr_mtx = select_redundant(data.corr(), THRESHOLD)
+    from matplotlib.pyplot import figure, title, savefig, show
+    from seaborn import heatmap
+
+    if corr_mtx.empty:
+        raise ValueError('Matrix is empty.')
+
+    figure(figsize=[10, 10])
+    heatmap(corr_mtx, xticklabels=corr_mtx.columns, yticklabels=corr_mtx.columns, annot=False, cmap='Blues')
+    title('Filtered Correlation Analysis')
+    savefig(f'images/filtered_correlation_analysis_{THRESHOLD}.png')
+    show()
     print(drop.keys())
 
 

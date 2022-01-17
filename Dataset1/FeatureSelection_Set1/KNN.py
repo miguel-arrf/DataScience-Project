@@ -13,7 +13,7 @@ target = "PERSON_INJURY"
 
 
 df = read_csv(filename).sample(frac=0.3)
-trnX, tstX, trnY, tstY = train_test_split(df, df['PERSON_INJURY'], test_size=0.3, random_state=1)
+trnX, tstX, trnY, tstY = train_test_split(df, df['PERSON_INJURY'], test_size=0.3, random_state=1, stratify=df['PERSON_INJURY'])
 
 labels = unique(trnY)
 labels.sort()

@@ -4,7 +4,7 @@ from pandas import read_csv, DataFrame, concat, Series
 from matplotlib.pyplot import figure, savefig, show
 from ds_charts import bar_chart, multiple_bar_chart, get_variable_types
 
-filename = '../MissingValuesImputation_Set1/data/dataset1_mv_most_frequent.csv'
+filename = '../teste_to_use.csv'
 file = "NYC_collisions_tabular"
 original = read_csv(filename, sep=',', decimal='.')
 class_var = 'PERSON_INJURY'

@@ -106,7 +106,7 @@ def multiple_bar_chart(xvalues: list, yvalues: dict, ax: plt.Axes = None, title:
         values = yvalues[metric]
         legend.append(metric)
         for k in range(len(values)):
-            ax.text(pos_group[k], values[k] + TEXT_MARGIN, f'{values[k]:.2f}', ha='center', fontproperties=FONT_TEXT)
+            ax.text(pos_group[k], values[k] + TEXT_MARGIN + 40, f'{values[k]:.2f}', ha='center', fontproperties=FONT_TEXT)
         pos_group = pos_group + width
         i += 1
     ax.legend(legend, fontsize='x-small', title_fontsize='small')

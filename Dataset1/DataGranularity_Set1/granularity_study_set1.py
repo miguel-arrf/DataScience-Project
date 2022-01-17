@@ -1,3 +1,4 @@
+from feature_engine.discretisation import EqualWidthDiscretiser
 from pandas import read_csv
 from ds_charts import get_variable_types, choose_grid, HEIGHT
 from matplotlib.pyplot import subplots, savefig, show
@@ -25,3 +26,4 @@ for i in range(rows):
         axs[i, j].hist(data[variables[i]].values, bins=bins[j])
 savefig('../DataGranularity_Set1/images/granularity_study.png')
 show()
+

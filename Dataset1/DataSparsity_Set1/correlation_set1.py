@@ -8,8 +8,8 @@ from seaborn import heatmap
 import seaborn as sns
 
 register_matplotlib_converters()
-filename = '../Dataset1/data/grouped.csv'
-data = read_csv(filename, index_col='CRASH_DATE', parse_dates=True, infer_datetime_format=True)
+filename = '../../data/NYC_collisions_tabular.csv'
+data = read_csv(filename, index_col='UNIQUE_ID', parse_dates=True, infer_datetime_format=True)
 
 features_to_use = ["BODILY_INJURY", "SAFETY_EQUIPMENT", "PERSON_SEX", "PED_LOCATION", "CONTRIBUTING_FACTOR_2",
                    "EJECTION", "COMPLAINT", "EMOTIONAL_STATUS", "CONTRIBUTING_FACTOR_1", "POSITION_IN_VEHICLE",
@@ -41,32 +41,8 @@ def scatterFilter(x, y, **kwargs):
     # ax = plt.scatter(interimDf.x.values, interimDf.y.values, 'o', jitter=True, **kwargs)
 
 
-# Create an instance of the PairGrid class.
-# grid = sns.PairGrid(data=data, vars=list(data.columns), height=4)
-
-# Map a scatter plot to the upper triangle
-# grid = grid.map_upper(scatterFilter, color='darkred')
-
-# Map a histogram to the diagonal
-# grid = grid.map_diag(plt.hist, bins=10, edgecolor='k', color='darkred')
-
-# Map a density plot to the lower triangle
-# grid = grid.map_lower(scatterFilter, color='darkred')
-
-# savefig(f'../DataSparsity_Set1/images/sparsity_symbolic_relevant_variables.png')
-
-
-'''
-for column in data.columns:
-    scatterFilter(data['PERSON_INJURY'], data[column])
-    show()
-    print(column)'''
-
-# plt.show()
-
 fig = plt.figure(figsize=(40,40))
 fig.subplots_adjust(hspace=0.4, wspace=0.4)
-
 
 
 

@@ -1,14 +1,15 @@
 import numpy as np
 import pandas as pd
+import xlrd
 from imblearn.over_sampling import SMOTE
-from matplotlib.pyplot import show
+from matplotlib.pyplot import show, savefig
 from numpy import nan, unique
 from pandas import DataFrame, concat
 from pandas import read_csv
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
-from sklearn.model_selection import cross_val_score, KFold, cross_val_predict, train_test_split
-from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import precision_score, recall_score
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import *
 
@@ -19,7 +20,7 @@ pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
-
+'''
 def smote(train):
     RANDOM_STATE = 42
     class_var = 'PERSON_INJURY'
@@ -32,6 +33,7 @@ def smote(train):
     df_smote = pd.concat([DataFrame(smote_X), DataFrame(smote_y)], axis=1)
     df_smote.columns = list(train.columns) + [class_var]
     return df_smote
+'''
 
 
 class Pipeline:
@@ -43,6 +45,8 @@ class Pipeline:
         self.dataset.drop(["COLLISION_ID"], axis=1, inplace=True)
         self.dataset.drop(["PERSON_ID"], axis=1, inplace=True)
         self.dataset.drop(["VEHICLE_ID"], axis=1, inplace=True)
+        self.dataset.drop(["CRASH_TIME"], axis=1, inplace=True)
+        self.dataset.drop(["CRASH_DATE"], axis=1, inplace=True)
 
         self.bodilyInjuryEncoder = None
         self.safetyEquipmentEncoder = None
@@ -81,8 +85,8 @@ class Pipeline:
             v = aux
             return v
 
-        self.dataset['CRASH_TIME'] = self.dataset['CRASH_TIME'].apply(
-            lambda x: transform_time(x))
+        # self.dataset['CRASH_TIME'] = self.dataset['CRASH_TIME'].apply(
+        #    lambda x: transform_time(x))
 
     def groupSafetyEquipment(self):
         def transform_safetyEquipment(v):
@@ -133,7 +137,7 @@ class Pipeline:
             imp = SimpleImputer(strategy='constant', fill_value=0, missing_values=nan, copy=True)
             tmp_nr = DataFrame(imp.fit_transform(dataset[numeric_vars]), columns=numeric_vars)
         if len(symbolic_vars) > 0:
-            imp = SimpleImputer(strategy='constant', fill_value='NA', missing_values=nan, copy=True)
+            imp = SimpleImputer(strategy='constant', fill_value='Unknown', missing_values=nan, copy=True)
             tmp_sb = DataFrame(imp.fit_transform(dataset[symbolic_vars]), columns=symbolic_vars)
         if len(binary_vars) > 0:
             imp = SimpleImputer(strategy='constant', fill_value=False, missing_values=nan, copy=True)
@@ -308,6 +312,30 @@ def encode_PersonType(dataset):
     return dataset
 
 
+def encode_PosInVehicle(dataset):
+    dataset = dataset.copy()
+
+
+def encode_EJECTION_LOCATION_ROLE_TYPE(dataset):
+    encode_ejection = [("Not Ejected", 5), ("Trapped", 7), ("Ejected", 10), ("Partially Ejected", 8), ("Unknown", 0)]
+    encode_location = {"Does Not Apply": 3, "Pedestrian/Bicyclist/Other Pedestrian Not at Intersection": 4,
+                       "Pedestrian/Bicyclist/Other Pedestrian at Intersection": 5, "Unknown": 1}
+    encode_role = {"Driver": 5, "Pedestrian": 4, "Passenger": 3, "Other": 1, "In-Line Skater": 2}
+    encode_type = {"Occupant": 2, "Pedestrian": 3, "Bicyclist": 1, "Other Motorized": 4}
+
+    for value in encode_ejection:
+        dataset["EJECTION"].loc[(dataset["EJECTION"] == value[0])] = value[1]
+
+    for key in encode_location:
+        dataset["PED_LOCATION"].loc[(dataset["PED_LOCATION"] == key)] = encode_location[key]
+
+    for value in encode_role:
+        dataset["PED_ROLE"].loc[(dataset["PED_ROLE"] == value)] = encode_role[value]
+
+    for value in encode_type:
+        dataset["PERSON_TYPE"].loc[(dataset["PERSON_TYPE"] == value)] = encode_type[value]
+
+
 def dummify(df, vars_to_dummify):
     df = df.copy()
     other_vars = [c for c in df.columns if not c in vars_to_dummify]
@@ -325,6 +353,7 @@ def dummify(df, vars_to_dummify):
 
 def encode(dataset):
     dataset_copy = dataset.copy()
+    # dataset_copy = encode_PosInVehicle(dataset_copy)
     # dataset_copy = encode_BodilyInjury(dataset_copy)
     # dataset_copy = encode_PersonType(dataset_copy)
     # dataset_copy = encode_Ejection(dataset_copy)
@@ -334,41 +363,96 @@ def encode(dataset):
     # dataset_copy = encode_EmotionalStatus(dataset_copy)
     # dataset_copy = encode_SafetyEquipment(dataset_copy)
 
-    for symbolic_var in get_variable_types(dataset_copy)['Symbolic']:
-        dataset_copy = encode_by_order(dataset_copy, symbolic_var)
+    # for symbolic_var in get_variable_types(dataset_copy)['Symbolic']:
+    #    dataset_copy = encode_by_order(dataset_copy, symbolic_var)
 
+    workbook = xlrd.open_workbook(f'encoding.xlsx', on_demand=True)
+    sheetNames = workbook.sheet_names()
+    encoding = []
+    for sheet in range(len(sheetNames)):
+
+        worksheet = workbook.sheet_by_index(sheet)
+
+        first_row = []  # The row where we stock the name of the column
+        for col in range(worksheet.ncols):
+            first_row.append(worksheet.cell_value(0, col))
+        # transform the workbook to a list of dictionaries
+        data = []
+        for row in range(1, worksheet.nrows):
+            elm = {}
+            for col in range(worksheet.ncols):
+                elm[first_row[col]] = worksheet.cell_value(row, col)
+            data.append(elm)
+        encoding.append(data)
+
+        for value in data:
+            dataset_copy[sheetNames[sheet]].loc[(dataset_copy[sheetNames[sheet]] == value['Name'])] = value['Value']
+
+    encode_EJECTION_LOCATION_ROLE_TYPE(dataset_copy)
+
+    # for symbolic_var in ["CRASH_TIME", "CRASH_DATE"]:
+    #    dataset_copy = encode_by_order(dataset_copy, symbolic_var)
+    dataset_copy["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
     return dataset_copy
 
 
 def saveTrainAndTestData(dataset):
-    '''
-    df = dataset.copy()
-
-    killed = df.loc[df["PERSON_INJURY"] == 'Killed']
-    injured = df.loc[df["PERSON_INJURY"] == 'Injured']
-
-    trainKilled, validate, test = np.split(killed.sample(frac=1, random_state=42),
-                                           [int(.7 * len(killed)), int(.9 * len(killed))])
-    testKilled = pd.concat([validate, test])
-
-    trainInjured, validate, test = np.split(injured.sample(frac=1, random_state=42),
-                                            [int(.7 * len(injured)), int(.9 * len(injured))])
-    testInjured = pd.concat([validate, test])
-
-    train = pd.concat([trainKilled, trainInjured])
-    test = pd.concat([testKilled, testInjured])
-
-    return smote(train), test
-    '''
     df = dataset.copy()
     y = df['PERSON_INJURY']
     X = df.drop(["PERSON_INJURY"], axis=1)
-    return train_test_split(X, y, test_size=0.33, random_state=42, stratify=y)
+    return train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
 
 
-def trainKNN(trainX, testX, trainY, testY):
+def getUndersampling(dataset):
+    original = dataset.copy()
 
-    estimators = {'NaiveBayes': KNeighborsClassifier(n_neighbors=5, metric='manhattan')}
+    class_var = 'PERSON_INJURY'
+    target_count = original[class_var].value_counts()
+
+    positive_class = target_count.idxmin()
+    negative_class = target_count.idxmax()
+
+    df_positives = original[original[class_var] == positive_class]
+    df_negatives = original[original[class_var] == negative_class]
+    df_neg_sample = DataFrame(df_negatives.sample(len(df_positives)))
+    df_under = concat([df_positives, df_neg_sample], axis=0)
+    return df_under
+
+
+def getSmote(dataset):
+    original = dataset.copy()
+    class_var = 'PERSON_INJURY'
+
+    RANDOM_STATE = 42
+
+    smote = SMOTE(sampling_strategy='minority', random_state=RANDOM_STATE)
+    y = original.pop(class_var).values
+    X = original.values
+    smote_X, smote_y = smote.fit_resample(X, y)
+    df_smote = concat([DataFrame(smote_X), DataFrame(smote_y)], axis=1)
+    df_smote.columns = list(original.columns) + [class_var]
+    return df_smote
+
+
+def getOverSampling(dataset):
+    original = dataset.copy()
+    class_var = 'PERSON_INJURY'
+
+    target_count = original[class_var].value_counts()
+
+    positive_class = target_count.idxmin()
+    negative_class = target_count.idxmax()
+
+    df_positives = original[original[class_var] == positive_class]
+    df_negatives = original[original[class_var] == negative_class]
+
+    df_pos_sample = DataFrame(df_positives.sample(len(df_negatives), replace=True))
+    df_over = concat([df_pos_sample, df_negatives], axis=0)
+    return df_over
+
+
+def trainKNN(trainX, testX, trainY, testY, model):
+    estimators = {'KNN': KNeighborsClassifier(n_neighbors=6, metric='euclidean')}
 
     labels = unique(trainY)
     labels.sort()
@@ -378,14 +462,17 @@ def trainKNN(trainX, testX, trainY, testY):
 
         prd_trn = estimators[clf].predict(trainX)
         prd_tst = estimators[clf].predict(testX)
-        plot_evaluation_results(labels, trainY, prd_trn, testY, prd_tst)
+        plot_evaluation_results(labels, trainY, prd_trn, testY, prd_tst, extra=f"for {clf}-{model}")
+        savefig(f"results/{clf}-{model}.png")
         show()
-        print("\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Killed"))
-        print("\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Killed"))
+        print("\t\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Killed"))
+        print("\t\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Killed"))
+        print()
+
+        return precision_score(testY, prd_tst, pos_label="Killed"), recall_score(testY, prd_tst, pos_label="Killed")
 
 
-def trainNaiveBayes(trainX, testX, trainY, testY):
-
+def trainNaiveBayes(trainX, testX, trainY, testY, model):
     estimators = {'GaussianNB': GaussianNB()}
 
     labels = unique(trainY)
@@ -396,29 +483,50 @@ def trainNaiveBayes(trainX, testX, trainY, testY):
 
         prd_trn = estimators[clf].predict(trainX)
         prd_tst = estimators[clf].predict(testX)
-        plot_evaluation_results(labels, trainY, prd_trn, testY, prd_tst)
+        plot_evaluation_results(labels, trainY, prd_trn, testY, prd_tst, extra=f"for {clf}-{model}")
+        savefig(f"results/{clf}-{model}.png")
         show()
-        print("\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Killed"))
-        print("\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Killed"))
+        print("\t\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Killed"))
+        print("\t\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Killed"))
+        print()
+
+        return precision_score(testY, prd_tst, pos_label="Killed"), recall_score(testY, prd_tst, pos_label="Killed")
 
 
 def scaleStandardScaler(dataset):
     dataset = dataset.copy()
-    transf = StandardScaler(with_mean=True, with_std=True, copy=True)
-    dataset["PERSON_AGE"] = transf.fit_transform(dataset[["PERSON_AGE"]])
-    return dataset
+
+    variable_types = get_variable_types(dataset)
+    numeric_vars = variable_types['Numeric']
+    symbolic_vars = variable_types['Symbolic']
+    boolean_vars = variable_types['Binary']
+
+    df_nr = dataset[numeric_vars]
+    df_sb = dataset[symbolic_vars]
+    df_bool = dataset[boolean_vars]
+
+    transf = StandardScaler(with_mean=True, with_std=True, copy=True).fit(df_nr)
+    tmp = DataFrame(transf.transform(df_nr), index=dataset.index, columns=numeric_vars)
+    norm_data_zscore = concat([tmp, df_sb, df_bool], axis=1)
+    return norm_data_zscore
 
 
 def scaleMinMaxScaler(dataset):
     dataset = dataset.copy()
 
-    variables = ["BODILY_INJURY", "PERSON_TYPE", "EJECTION", "COMPLAINT", "PED_ROLE", "PED_ACTION",
-                 "EMOTIONAL_STATUS", "SAFETY_EQUIPMENT"]
+    variable_types = get_variable_types(dataset)
+    numeric_vars = variable_types['Numeric']
+    symbolic_vars = variable_types['Symbolic']
+    boolean_vars = variable_types['Binary']
 
-    for var in variables:
-        transf = MinMaxScaler(feature_range=(0, 1), copy=True)
-        dataset[var] = transf.fit_transform(dataset[[var]])
-    return dataset
+    df_nr = dataset[numeric_vars]
+    df_sb = dataset[symbolic_vars]
+    df_bool = dataset[boolean_vars]
+
+    transf = MinMaxScaler(feature_range=(0, 1), copy=True).fit(df_nr)
+    tmp = DataFrame(transf.transform(df_nr), index=dataset.index, columns=numeric_vars)
+    norm_data_minmax = concat([tmp, df_sb, df_bool], axis=1)
+    return norm_data_minmax
 
 
 if __name__ == '__main__':
@@ -427,41 +535,71 @@ if __name__ == '__main__':
 
     pipeline.removeIncorrectValues()
 
-    pipeline.groupSafetyEquipment()
+    # pipeline.groupSafetyEquipment()
     pipeline.groupTime()
 
-    # datasetRemovedMissingValues = pipeline.dropAllMissingValues()
     datasetCustomImputation = pipeline.customMissingValuesImputation()
     datasetReplaceMVByConstant = pipeline.replaceMissingValuesImputationWithConstant()
     datasetReplaceMVByMostCommon = pipeline.replaceMissingValuesImputationWithMostCommon()
 
-    encode(datasetCustomImputation).to_csv("data/for_tree_labs.csv")
+    encode(datasetCustomImputation).to_csv("teste_to_use.csv")
 
+    results = []
+    models = []
     for mv in [
-        # DON'T USE:  (datasetRemovedMissingValues, "datasetRemovedMissingValues"),
-        (datasetCustomImputation, "datasetCustomImputation"),
-        (datasetReplaceMVByConstant, "datasetReplaceMVByConstant"),
-        (datasetReplaceMVByMostCommon, "datasetReplaceMVByMostCommon")
+        (datasetCustomImputation, "customImputation"),
+        # (datasetReplaceMVByMostCommon, "ReplaceMVByMostCommon"),
+        # (datasetReplaceMVByConstant, "ReplaceMVByConstant")
     ]:
 
         print("____________")
         print("Missing value imputation method: ", mv[1])
         print()
         for dummyMethod in [
-            (encode, "ordinal-encoding"),
-            (dummifyDataset, "one-hot"),
+            (encode, "ordinalEncoding"),
+            # (dummifyDataset, "oneHot"),
         ]:
             print("\tEncoding method: ", dummyMethod[1])
-            mvDataset = mv[0].copy()
-            dummified = dummyMethod[0](mvDataset)
-            print("\tresult size: ", dummified.shape)
-            print("")
 
-            dummified["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
+            for scalingMethod in [(scaleStandardScaler, "z-score"), (scaleMinMaxScaler, "minMax")]:
+                print("\tScaling method: ", scalingMethod[1])
 
-            X_train, X_test, y_train, y_test = saveTrainAndTestData(dummified)
+                for balancingMethod in [(getUndersampling, "UnderSampling"),
+                                        (getSmote, "Smote"), (getOverSampling, "OverSampling")]:
+                    print("\tBalancing method: ", balancingMethod[1])
 
-            trainNaiveBayes(X_train, X_test, y_train, y_test)
-            trainKNN(X_train, X_test, y_train, y_test)
+                    mvDataset = mv[0].copy()
+                    dummified = dummyMethod[0](mvDataset)
+                    dummified = scalingMethod[0](dummified)
 
+
+                    print("\tshape: ", dummified.shape)
+                    print("")
+
+                    dummified.to_csv("dummy.csv")
+
+                    # dummified["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
+
+                    X_train, X_test, y_train, y_test = saveTrainAndTestData(dummified)
+
+                    temp = pd.concat([X_train, y_train], axis=1)
+                    temp = balancingMethod[0](temp)
+                    y_train = temp["PERSON_INJURY"]
+                    X_train = temp.drop(["PERSON_INJURY"], axis=1)
+
+                    dicionary = {}
+
+                    # prNB, recallNB = trainNaiveBayes(X_train, X_test, y_train, y_test, model=f"{dummyMethod[1]}-{mv[1]}")
+                    prKNN, recallKNN = trainKNN(X_train, X_test, y_train, y_test,
+                                                model=f"{dummyMethod[1]}-{mv[1]}-{scalingMethod[1]}-{balancingMethod[1]}")
+
+                    # dicionary[f"{mv[1]}-{dummyMethod[1]}-naiveBayes-{scalingMethod[1]}-{balancingMethod[1]}"] = "precision:{:.2f} <-> recall:{:.2f}".format(prNB, recallNB)
+                    dicionary[
+                        f"{mv[1]}-{dummyMethod[1]}-KNN-{scalingMethod[1]}-{balancingMethod[1]}"] = "precision:{:.2f} <-> recall:{:.2f} ".format(
+                        prKNN, recallKNN)
+
+                    results.append(dicionary)
+
+    print("Results:")
+    print(results)
     # pipeline.saveTrainAndTestData("test", "train")

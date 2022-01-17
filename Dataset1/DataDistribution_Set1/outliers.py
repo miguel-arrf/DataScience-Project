@@ -48,6 +48,7 @@ for var in numeric_vars:
 
     if var == "PERSON_AGE":
         tempVar = "PERSON_INJURY"
+
         print("IQR:")
         print(">75% :")
         print(Counter(data[data[var] > summary5[var]['75%'] + iqr][tempVar].tolist()))
