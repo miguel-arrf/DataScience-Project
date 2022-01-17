@@ -13,7 +13,7 @@ target = 'ALARM'
 filename = '../MissingValuesImputation_Set2/data/dataset2_mv_most_frequent.csv'
 
 df = read_csv(f'{filename}')
-df = df.sample(frac=0.7)
+df = df.sample(frac=1)
 
 df = df.dropna()
 
