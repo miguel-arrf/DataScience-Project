@@ -112,7 +112,7 @@ def multiple_bar_chart(xvalues: list, yvalues: dict, ax: plt.Axes = None, title:
     ax.legend(legend, fontsize='x-small', title_fontsize='small')
 
 
-def plot_evaluation_results(labels: ndarray, trn_y, prd_trn, tst_y, prd_tst, extra):
+def plot_evaluation_results(labels: ndarray, trn_y, prd_trn, tst_y, prd_tst):
     cnf_mtx_trn = metrics.confusion_matrix(trn_y, prd_trn)
     tn_trn, fp_trn, fn_trn, tp_trn = cnf_mtx_trn.ravel()
     cnf_mtx_tst = metrics.confusion_matrix(tst_y, prd_tst)
@@ -125,7 +125,7 @@ def plot_evaluation_results(labels: ndarray, trn_y, prd_trn, tst_y, prd_tst, ext
                   'Precision': [tp_trn / (tp_trn + fp_trn), tp_tst / (tp_tst + fp_tst)]}
 
     fig, axs = plt.subplots(1, 2, figsize=(2 * HEIGHT, HEIGHT))
-    multiple_bar_chart(['Train', 'Test'], evaluation, ax=axs[0], title=f"Train and Test sets {extra}",
+    multiple_bar_chart(['Train', 'Test'], evaluation, ax=axs[0], title="Model's performance over Train and Test sets",
                        percentage=True)
     plot_confusion_matrix(cnf_mtx_tst, labels, ax=axs[1], title='Test')
 
