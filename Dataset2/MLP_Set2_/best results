@@ -1,0 +1,2 @@
+Sampling - Best results with lr_type=adaptive, learning rate=0.01 and 300 max iter, with accuracy=0.9729333333333333
+Full - Best results with lr_type=adaptive, learning rate=0.01 and 2500 max iter, with accuracy=0.9870930896630496
