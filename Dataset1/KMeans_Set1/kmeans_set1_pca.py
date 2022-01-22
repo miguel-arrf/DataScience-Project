@@ -1,6 +1,9 @@
+import pandas as pd
 from matplotlib.pyplot import subplots, show, savefig
+from numpy.linalg import eig
 from pandas import DataFrame, read_csv
 from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score, davies_bouldin_score
 
 from ds_charts import choose_grid, plot_clusters, plot_line
@@ -13,8 +16,30 @@ data.pop('PERSON_INJURY')
 data.pop('UNIQUE_ID')
 print(data.columns)
 
-v1 = 6
-v2 = 7
+
+#start pca
+
+eixo_x = 1
+eixo_y = 6
+eixo_z = 7
+
+mean = (data.mean(axis=0)).tolist()
+centered_data = data - mean
+cov_mtx = centered_data.cov()
+eigvals, eigvecs = eig(cov_mtx)
+
+
+pca = PCA()
+pca.fit(centered_data)
+PC = pca.components_
+var = pca.explained_variance_
+
+data = pd.concat([data.iloc[:, eixo_y], data.iloc[:, eixo_z]], axis=1)
+
+#end pca
+
+v1 = 0
+v2 = 1
 
 N_CLUSTERS = [5, 9, 13, 17, 19, 21, 27, 29]
 rows, cols = choose_grid(len(N_CLUSTERS))
@@ -42,7 +67,7 @@ for n in range(len(N_CLUSTERS)):
                   ax=axs[i, j])
 
     i, j = (i + 1, 0) if (n + 1) % cols == 0 else (i, j + 1)
-savefig(f'images/kmeans_study_before_pca.png')
+savefig(f'images/kmeans_study_after_pca.png')
 show()
 
 fig, ax = subplots(1, 3, figsize=(6, 3), squeeze=False)
@@ -51,5 +76,5 @@ plot_line(N_CLUSTERS, sc, title='KMeans SC', xlabel='k', ylabel='SC', ax=ax[0, 1
 plot_line(N_CLUSTERS, davies_bouldin_score_list, title='KMeans davies_bouldin_score', xlabel='k',
           ylabel='davies_bouldin_score', ax=ax[0, 2], percentage=True)
 
-savefig(f'images/kmeans_scores_before_pca.png')
+savefig(f'images/kmeans_scores_after_pca.png')
 show()
