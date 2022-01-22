@@ -48,7 +48,7 @@ def select_low_variance(data, threshold):
     figure(figsize=[20, 4])
     bar_chart(lst_variables, lst_variances, title='Variance Study', xlabel='variables', ylabel='variance')
     savefig('images/variance_study.png')
-    return lst_variablesf
+    return lst_variables
 
 def main(THRESHOLD = 0.6, filename = "../../data/Set1_noAnomalies_TimeHierarchy.csv"):
 

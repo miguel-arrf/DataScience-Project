@@ -13,7 +13,14 @@ from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import *
 
+from Dataset1.DecisionTrees import DecisionTrees
+from Dataset1.Gradientboosting import GradientBoosting
+from Dataset1.MLP import MLP
 from Dataset1.MissingValuesImputation_Set1 import imputation_function_apply_set1
+from Dataset1.NaiveBayes import NaiveBayes
+from Dataset1.KNN import KNN
+from Dataset1.RandomForests import RandomForests
+
 from ds_charts import get_variable_types, plot_evaluation_results
 
 pd.set_option('display.max_rows', 500)
@@ -434,6 +441,23 @@ def getSmote(dataset):
     return df_smote
 
 
+def getBestUnderstampling(dataset):
+    original = dataset.copy()
+
+    class_var = 'PERSON_INJURY'
+    target_count = original[class_var].value_counts()
+
+    positive_class = target_count.idxmin()
+    negative_class = target_count.idxmax()
+
+    df_positives = original[original[class_var] == positive_class]
+    df_negatives = original[original[class_var] == negative_class]
+    df_negatives = df_negatives.sample(10000)  # Sampled df_negatives
+    # df_neg_sample = DataFrame(df_negatives.sample(len(df_positives)))
+    df_under = concat([df_positives, df_negatives], axis=0)
+    return getSmote(df_under)
+
+
 def getOverSampling(dataset):
     original = dataset.copy()
     class_var = 'PERSON_INJURY'
@@ -529,6 +553,81 @@ def scaleMinMaxScaler(dataset):
     return norm_data_minmax
 
 
+def balanceNothing(dataset):
+    return dataset.copy()
+
+
+def selectEverything(dataset, threshold):
+    return dataset.copy()
+
+
+def drop_variance(originalDataset, threshold):
+    dataset = originalDataset.copy()
+    injury = dataset["PERSON_INJURY"]
+    dataset = dataset.drop(["PERSON_INJURY"], axis=1)
+    dataset = dataset.apply(pd.to_numeric)
+
+    numeric = get_variable_types(dataset)['Numeric']
+    dataset = dataset[numeric]
+
+    lst_variables = []
+    lst_variances = []
+    for el in dataset.columns:
+        value = dataset[el].var()
+        if value >= threshold:
+            lst_variables.append(el)
+            lst_variances.append(value)
+
+    print("\tvars to drop: {}: {}".format(len(lst_variables), lst_variables))
+    print("original columns: ", len(dataset.columns))
+    dataset = dataset.drop(lst_variables, axis=1)
+
+    return pd.concat([dataset, injury], axis=1)
+
+
+def drop_redundant(data: DataFrame, vars_2drop: dict) -> DataFrame:
+    sel_2drop = []
+    for key in vars_2drop.keys():
+        if key not in sel_2drop:
+            for r in vars_2drop[key]:
+                if r != key and r not in sel_2drop:
+                    sel_2drop.append(r)
+    print('\tVariables to drop', sel_2drop)
+    df = data.copy()
+    for var in sel_2drop:
+        df.drop(labels=var, axis=1, inplace=True)
+
+    return df
+
+
+def select_redundant(originalDataset, threshold):
+    dataset = originalDataset.copy()
+    injury = dataset["PERSON_INJURY"]
+    dataset = dataset.drop(["PERSON_INJURY"], axis=1)
+    dataset = dataset.apply(pd.to_numeric)
+
+    corr_mtx = dataset.corr()
+
+    if corr_mtx.empty:
+        return {}
+
+    corr_mtx = abs(corr_mtx)
+    vars_2drop = {}
+    for el in corr_mtx.columns:
+        el_corr = (corr_mtx[el]).loc[corr_mtx[el] >= threshold]
+        if len(el_corr) == 1:
+            corr_mtx.drop(labels=el, axis=1, inplace=True)
+            corr_mtx.drop(labels=el, axis=0, inplace=True)
+        else:
+            vars_2drop[el] = el_corr.index
+
+    # dataset = dataset.drop(vars_2drop.keys(), axis=1)
+    # print("Vars 2 drop with threshold: {} -> {}".format(threshold, vars_2drop.keys()))
+    dataset = pd.concat([dataset, injury], axis=1)
+
+    return drop_redundant(dataset, vars_2drop)
+
+
 if __name__ == '__main__':
     pipeline = Pipeline()
     print("Initial pipeline shape: ", pipeline.dataset.shape)
@@ -542,8 +641,8 @@ if __name__ == '__main__':
     datasetReplaceMVByConstant = pipeline.replaceMissingValuesImputationWithConstant()
     datasetReplaceMVByMostCommon = pipeline.replaceMissingValuesImputationWithMostCommon()
 
-    encode(datasetCustomImputation).to_csv("teste_to_use.csv")
-
+    select_redundant(scaleStandardScaler(encode(datasetCustomImputation)), 0.7).to_csv("teste_to_use.csv")
+    print("saved")
     results = []
     models = []
     for mv in [
@@ -561,45 +660,100 @@ if __name__ == '__main__':
         ]:
             print("\tEncoding method: ", dummyMethod[1])
 
-            for scalingMethod in [(scaleStandardScaler, "z-score"), (scaleMinMaxScaler, "minMax")]:
+            for scalingMethod in [
+                (scaleStandardScaler, "z-score"),
+                # (scaleMinMaxScaler, "minMax")
+                # (balanceNothing, "")
+            ]:
                 print("\tScaling method: ", scalingMethod[1])
 
-                for balancingMethod in [(getUndersampling, "UnderSampling"),
-                                        (getSmote, "Smote"), (getOverSampling, "OverSampling")]:
+                for balancingMethod in [(getBestUnderstampling, "bestUnderSampling"),
+                                        # (getUndersampling, "UnderSampling"),
+                                        # (getSmote, "Smote"),
+                                        # (getOverSampling, "OverSampling"),
+                                        # (balanceNothing, "noBalancing")
+                                        ]:
                     print("\tBalancing method: ", balancingMethod[1])
+                    for selectionFeatures in [
+                        # (selectEverything, "selectEverything", "-"),
+                        # (drop_variance, "selectVariance", 0.9)
+                        # (select_redundant, "RedundantFeatures", 0.9),
+                        (select_redundant, "RedundantFeatures", 0.7),
+                    ]:
+                        print("\tfeatureSelection: ", selectionFeatures[1])
 
-                    mvDataset = mv[0].copy()
-                    dummified = dummyMethod[0](mvDataset)
-                    dummified = scalingMethod[0](dummified)
+                        mvDataset = mv[0].copy()
+                        dummified = dummyMethod[0](mvDataset)
+                        dummified = dummified.drop(["EMOTIONAL_STATUS"], axis=1)
+                        dummified = scalingMethod[0](dummified)
 
+                        dummified = selectionFeatures[0](dummified, selectionFeatures[2])
+                        print("")
 
-                    print("\tshape: ", dummified.shape)
-                    print("")
+                        # dummified["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
 
-                    dummified.to_csv("dummy.csv")
+                        X_train, X_test, y_train, y_test = saveTrainAndTestData(dummified)
 
-                    # dummified["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
+                        temp = pd.concat([X_train, y_train], axis=1)
+                        temp = balancingMethod[0](temp)
+                        y_train = temp["PERSON_INJURY"]
+                        X_train = temp.drop(["PERSON_INJURY"], axis=1)
 
-                    X_train, X_test, y_train, y_test = saveTrainAndTestData(dummified)
+                        '''
+                        naiveBayes = NaiveBayes( trnX=X_train,
+                                                trnY=y_train,
+                                                tstX=X_test,
+                                                tstY=y_test)
+                        
+                        
+                        knn = KNN(trnX=X_train,
+                                  trnY=y_train,
+                                  tstX=X_test,
+                                  tstY=y_test)
+                        
 
-                    temp = pd.concat([X_train, y_train], axis=1)
-                    temp = balancingMethod[0](temp)
-                    y_train = temp["PERSON_INJURY"]
-                    X_train = temp.drop(["PERSON_INJURY"], axis=1)
+                        decisionTrees = DecisionTrees(trnX=X_train,
+                                                      trnY=y_train,
+                                                      tstX=X_test,
+                                                      tstY=y_test)
+                        
+                        randomForests = RandomForests(trnX=X_train,
+                                                      trnY=y_train,
+                                                      tstX=X_test,
+                                                      tstY=y_test)
+                        
+                        mlp = MLP(trnX=X_train,
+                                  trnY=y_train,
+                                  tstX=X_test,
+                                  tstY=y_test)
 
-                    dicionary = {}
+                        gradientBoosting = GradientBoosting(trnX=X_train,
+                                  trnY=y_train,
+                                  tstX=X_test,
+                                  tstY=y_test)
+                        '''
 
-                    # prNB, recallNB = trainNaiveBayes(X_train, X_test, y_train, y_test, model=f"{dummyMethod[1]}-{mv[1]}")
-                    prKNN, recallKNN = trainKNN(X_train, X_test, y_train, y_test,
-                                                model=f"{dummyMethod[1]}-{mv[1]}-{scalingMethod[1]}-{balancingMethod[1]}")
+                        '''
+                        dicionary = {}
 
-                    # dicionary[f"{mv[1]}-{dummyMethod[1]}-naiveBayes-{scalingMethod[1]}-{balancingMethod[1]}"] = "precision:{:.2f} <-> recall:{:.2f}".format(prNB, recallNB)
-                    dicionary[
-                        f"{mv[1]}-{dummyMethod[1]}-KNN-{scalingMethod[1]}-{balancingMethod[1]}"] = "precision:{:.2f} <-> recall:{:.2f} ".format(
-                        prKNN, recallKNN)
+                        prNB, recallNB = trainNaiveBayes(X_train, X_test, y_train, y_test,
+                                                         model=f"{dummyMethod[1]}-{mv[1]}-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}")
+                        dicionary[
+                            f"{mv[1]}-{dummyMethod[1]}-naiveBayes-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}"] = "precision:{:.2f} <-> recall:{:.2f}".format(
+                            prNB, recallNB)
 
-                    results.append(dicionary)
+                        prKNN, recallKNN = trainKNN(X_train, X_test, y_train, y_test,
+                                                    model=f"{dummyMethod[1]}-{mv[1]}-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}")
+                        dicionary[
+                            f"{mv[1]}-{dummyMethod[1]}-KNN-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}"] = "precision:{:.2f} <-> recall:{:.2f} ".format(
+                            prKNN, recallKNN)
 
+                        results.append(dicionary)
+                        '''
+
+    '''
     print("Results:")
-    print(results)
-    # pipeline.saveTrainAndTestData("test", "train")
+    for result in results:
+        print(result)
+        print()
+    '''

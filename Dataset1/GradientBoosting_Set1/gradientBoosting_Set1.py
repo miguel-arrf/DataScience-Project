@@ -1,29 +1,21 @@
-import pandas as pd
-from numpy import ndarray, argsort, std
-from pandas import DataFrame, read_csv, unique
-from matplotlib.pyplot import figure, subplots, savefig, show
+from matplotlib.pyplot import figure, subplots, savefig
+from numpy import argsort, std
+from pandas import read_csv, unique
 from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-from ds_charts import plot_evaluation_results, multiple_line_chart, horizontal_bar_chart, HEIGHT, get_variable_types, \
-    plot_overfitting_study
-from sklearn.metrics import accuracy_score
+from ds_charts import plot_evaluation_results, multiple_line_chart, horizontal_bar_chart, HEIGHT, plot_overfitting_study
 
 target = 'PERSON_INJURY'
-df = read_csv(f'../data/for_tree_labs.csv')
+df = read_csv(f'../teste_to_use.csv')
 y = df['PERSON_INJURY']
-df = df.drop('PERSON_INJURY', 1)
-df["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
+df = df.drop('PERSON_INJURY', axis=1)
 
-#y = y.replace({0: 1, 1: 0})
 trnX, tstX, trnY, tstY = train_test_split(df, y, test_size=0.3, random_state=1,
                                           stratify=y)
 labels = unique(trnY)
 labels.sort()
-print("columns: ", trnX.columns)
-print("testX: ", tstX)
-print("--")
-print("testY: ", tstY)
 
 n_estimators = [5, 10, 25, 50, 75, 100, 200, 300, 400]
 max_depths = [5, 10, 25]
@@ -37,10 +29,13 @@ figure()
 fig, axs = subplots(1, cols, figsize=(cols*HEIGHT, HEIGHT), squeeze=False)
 for k in range(len(max_depths)):
     d = max_depths[k]
+    print("d: ", d)
     values = {}
     for lr in learning_rate:
+        print("lr: ", lr)
         yvalues = []
         for n in n_estimators:
+            print("n: ", n)
             gb = GradientBoostingClassifier(n_estimators=n, max_depth=d, learning_rate=lr)
             gb.fit(trnX, trnY)
             prdY = gb.predict(tstX)
@@ -57,7 +52,7 @@ print('Best results with depth=%d, learning rate=%1.2f and %d estimators, with a
 
 prd_trn = best_model.predict(trnX)
 prd_tst = best_model.predict(tstX)
-plot_evaluation_results(labels, trnY, prd_trn, tstY, prd_tst)
+plot_evaluation_results(labels, trnY, prd_trn, tstY, prd_tst, extra="")
 savefig(f'images/_gb_best.png')
 
 
@@ -80,7 +75,7 @@ eval_metric = accuracy_score
 y_tst_values = []
 y_trn_values = []
 for n in n_estimators:
-    gb = GradientBoostingClassifier(n_estimators=n, max_depth=d, learning_rate=lr)
+    gb = GradientBoostingClassifier(n_estimators=best[2], max_depth=best[0], learning_rate=best[1])
     gb.fit(trnX, trnY)
     prd_tst_Y = gb.predict(tstX)
     prd_trn_Y = gb.predict(trnX)
