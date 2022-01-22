@@ -41,7 +41,7 @@ data = pd.concat([data.iloc[:, eixo_y], data.iloc[:, eixo_z]], axis=1)
 v1 = 0
 v2 = 1
 
-N_CLUSTERS = [5, 9, 13, 17, 19, 21, 27, 29]
+N_CLUSTERS = [2, 3, 4, 5, 6, 7]
 rows, cols = choose_grid(len(N_CLUSTERS))
 
 mse: list = []

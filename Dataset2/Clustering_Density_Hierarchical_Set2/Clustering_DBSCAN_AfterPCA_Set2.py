@@ -128,7 +128,7 @@ for n in range(len(METRICS)):
 savefig(f"images/MetricsDensity_PCA")
 #show()
 
-fig, ax = subplots(2, 2, figsize=(6, 6), squeeze=False)
+fig, ax = subplots(2, 2, figsize=(20,20), squeeze=False)
 bar_chart(METRICS, mse, title='DBSCAN MSE', xlabel='metric', ylabel='MSE', ax=ax[0, 0])
 bar_chart(METRICS, rmse, title='DBSCAN RMSE', xlabel='metric', ylabel='RMSE', ax=ax[0, 1])
 bar_chart(METRICS, mae, title='DBSCAN MAE', xlabel='metric', ylabel='MAE', ax=ax[1, 0])
