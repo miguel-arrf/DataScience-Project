@@ -23,8 +23,9 @@ for binary_var in binary_vars:
 y = data['ALARM']
 data = data.drop('ALARM', 1)
 data = data.drop('FID', 1)
-v1 = 0
-v2 = 4
+
+v1 = 18
+v2 = 22
 
 N_CLUSTERS = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]
 rows, cols = choose_grid(len(N_CLUSTERS))

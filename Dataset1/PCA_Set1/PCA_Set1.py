@@ -12,9 +12,9 @@ data = data.drop('UNIQUE_ID', 1)
 data["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
 
 variables = data.columns.values
-eixo_x = 0
-eixo_y = 4
-eixo_z = 7
+eixo_x = 2
+eixo_y = 8
+eixo_z = 10
 
 figure()
 xlabel(variables[eixo_y])
@@ -61,4 +61,5 @@ axs[0,1].set_xlabel('PC1')
 axs[0,1].set_ylabel('PC2')
 axs[0,1].scatter(transf[:, 0], transf[:, 1])
 savefig(f"images/PCA")
+#drop complaint e BI2 e adicionar transf[:, 0] ou transf[:, 1]
 #show()
