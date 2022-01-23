@@ -647,8 +647,8 @@ if __name__ == '__main__':
     models = []
     for mv in [
         (datasetCustomImputation, "customImputation"),
-        # (datasetReplaceMVByMostCommon, "ReplaceMVByMostCommon"),
-        # (datasetReplaceMVByConstant, "ReplaceMVByConstant")
+        #(datasetReplaceMVByMostCommon, "ReplaceMVByMostCommon"),
+        #(datasetReplaceMVByConstant, "ReplaceMVByConstant")
     ]:
 
         print("____________")
@@ -656,7 +656,7 @@ if __name__ == '__main__':
         print()
         for dummyMethod in [
             (encode, "ordinalEncoding"),
-            # (dummifyDataset, "oneHot"),
+            #(dummifyDataset, "oneHot"),
         ]:
             print("\tEncoding method: ", dummyMethod[1])
 

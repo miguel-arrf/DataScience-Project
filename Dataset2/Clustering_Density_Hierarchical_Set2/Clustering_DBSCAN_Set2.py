@@ -58,6 +58,7 @@ for n in range(len(EPS)):
         sc.append(0)
 savefig(f"images/EPS_Clustering")
 #show()
+print("done!")
 
 fig, ax = subplots(2, 2, figsize=(6, 6), squeeze=False)
 plot_line(EPS, mse, title='DBSCAN MSE', xlabel='eps', ylabel='MSE', ax=ax[0, 0])
@@ -110,7 +111,7 @@ for n in range(len(METRICS)):
 savefig(f"images/MetricsDensity")
 #show()
 
-fig, ax = subplots(2, 2, figsize=(6, 6), squeeze=False)
+fig, ax = subplots(2, 2, figsize=(20, 20), squeeze=False)
 bar_chart(METRICS, mse, title='DBSCAN MSE', xlabel='metric', ylabel='MSE', ax=ax[0, 0])
 bar_chart(METRICS, rmse, title='DBSCAN RMSE', xlabel='metric', ylabel='RMSE', ax=ax[0, 1])
 bar_chart(METRICS, mae, title='DBSCAN MAE', xlabel='metric', ylabel='MAE', ax=ax[1, 0])

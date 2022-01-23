@@ -1,7 +1,10 @@
 import math
 
+import pandas as pd
 from matplotlib.pyplot import subplots, show, savefig
+from numpy.linalg import eig
 from pandas import DataFrame, read_csv
+from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score, mean_absolute_error
 from sklearn.mixture import GaussianMixture
 
@@ -15,8 +18,30 @@ data.pop('PERSON_INJURY')
 data.pop('UNIQUE_ID')
 print(data.columns)
 
-v1 = 6
-v2 = 7
+# start pca
+
+eixo_x = 1
+eixo_y = 6
+eixo_z = 7
+
+mean = (data.mean(axis=0)).tolist()
+centered_data = data - mean
+cov_mtx = centered_data.cov()
+eigvals, eigvecs = eig(cov_mtx)
+
+
+pca = PCA()
+pca.fit(centered_data)
+PC = pca.components_
+var = pca.explained_variance_
+
+data = pd.concat([data.iloc[:, eixo_y], data.iloc[:, eixo_z]], axis=1)
+
+# end pca
+
+v1 = 0
+v2 = 1
+
 
 N_CLUSTERS = [5, 9, 13, 17, 19, 21, 27, 29]
 rows, cols = choose_grid(len(N_CLUSTERS))
@@ -75,7 +100,7 @@ for n in range(len(N_CLUSTERS)):
 
     i, j = (i + 1, 0) if (n + 1) % cols == 0 else (i, j + 1)
 
-savefig(f'images/em_study_before_pca.png')
+savefig(f'images/em_study_after_pca.png')
 show()
 
 
@@ -86,5 +111,5 @@ plot_line(N_CLUSTERS, mae, title='EM MAE', xlabel='k', ylabel='MAE', ax=ax[0, 2]
 plot_line(N_CLUSTERS, rmse, title='EM RMSE', xlabel='k', ylabel='RMSE', ax=ax[0, 3])
 
 
-savefig(f'images/em_scores_before_pca.png')
+savefig(f'images/em_scores_after_pca.png')
 show()
