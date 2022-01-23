@@ -112,7 +112,7 @@ def multiple_bar_chart(xvalues: list, yvalues: dict, ax: plt.Axes = None, title:
     ax.legend(legend, fontsize='x-small', title_fontsize='small')
 
 
-def plot_evaluation_results(labels: ndarray, trn_y, prd_trn, tst_y, prd_tst):
+def plot_evaluation_results(labels: ndarray, trn_y, prd_trn, tst_y, prd_tst, extra):
     cnf_mtx_trn = metrics.confusion_matrix(trn_y, prd_trn)
     tn_trn, fp_trn, fn_trn, tp_trn = cnf_mtx_trn.ravel()
     cnf_mtx_tst = metrics.confusion_matrix(tst_y, prd_tst)
@@ -125,7 +125,7 @@ def plot_evaluation_results(labels: ndarray, trn_y, prd_trn, tst_y, prd_tst):
                   'Precision': [tp_trn / (tp_trn + fp_trn), tp_tst / (tp_tst + fp_tst)]}
 
     fig, axs = plt.subplots(1, 2, figsize=(2 * HEIGHT, HEIGHT))
-    multiple_bar_chart(['Train', 'Test'], evaluation, ax=axs[0], title="Model's performance over Train and Test sets",
+    multiple_bar_chart(['Train', 'Test'], evaluation, ax=axs[0], title=f"Train and Test sets {extra}",
                        percentage=True)
     plot_confusion_matrix(cnf_mtx_tst, labels, ax=axs[1], title='Test')
 
@@ -230,6 +230,27 @@ def compute_mse(X: ndarray, labels: list, centroids: list) -> float:
     return math.sqrt(partial) / (n-1)
 
 
+def compute_rmse(X: ndarray, labels: list, centroids: list) -> float:
+    n = len(X)
+    centroid_per_record = [centroids[labels[i]] for i in range(n)]
+    partial = X - centroid_per_record
+    partial = list(partial * partial)
+    partial = [sum(el) for el in partial]
+    partial = sum(partial)
+    return math.sqrt(partial / (n-1))
+
+
+def compute_mae(X: ndarray, labels: list, centroids: list) -> float:
+    n = len(X)
+    centroid_per_record = [centroids[labels[i]] for i in range(n)]
+    partial = X - centroid_per_record
+    partial = list(abs(partial))
+    partial = [sum(el) for el in partial]
+    partial = sum(partial)
+    return partial/(n-1)
+
+
+
 def two_scales(ax1, time, data1, data2, c1, c2, xlabel='', ylabel1='', ylabel2=''):
     ax2 = ax1.twinx()
     ax1.plot(time, data1, color=c1)
@@ -273,3 +294,9 @@ def get_variable_types(df: DataFrame) -> dict:
             df[c].astype('category')
             variable_types['Symbolic'].append(c)
     return variable_types
+
+def plot_overfitting_study(xvalues, prd_trn, prd_tst, name, xlabel, ylabel, extra=""):
+    evals = {'Train': prd_trn, 'Test': prd_tst}
+    plt.figure()
+    multiple_line_chart(xvalues, evals, ax = None, title=f'Overfitting {name}', xlabel=xlabel, ylabel=ylabel, percentage=True)
+    plt.savefig(f'images/overfitting_{extra}.png')
