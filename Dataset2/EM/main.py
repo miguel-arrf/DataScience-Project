@@ -18,6 +18,7 @@ def EM(data, v1, v2, tag, N_CLUSTERS = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 2
     
     for n in range(len(N_CLUSTERS)):
         k = N_CLUSTERS[n]
+        print("k: ", k)
         estimator = GaussianMixture(n_components=k)
         estimator.fit(data)
 
@@ -38,7 +39,7 @@ def EM(data, v1, v2, tag, N_CLUSTERS = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 2
     savefig(f"images/EM-%sPCA-clusters.png" % (tag))
     
     
-    fig, ax = subplots(2, 2, figsize=(6, 3), squeeze=False)
+    fig, ax = subplots(2, 2, figsize=(6, 6), squeeze=False)
     plot_line(N_CLUSTERS, mse, title='EM MSE', xlabel='k', ylabel='MSE', ax=ax[0, 0])
     plot_line(N_CLUSTERS, rmse, title='EM RMSE', xlabel='k', ylabel='RMSE', ax=ax[0, 1])
     plot_line(N_CLUSTERS, mae, title='EM MAE', xlabel='k', ylabel='MAE', ax=ax[1, 0])
@@ -46,7 +47,7 @@ def EM(data, v1, v2, tag, N_CLUSTERS = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 2
     savefig(f"images/EM-%sPCA-eval.png" % (tag))
 
 if __name__ == "__main__":
-    data = read_csv(f'../../data/air_quality_tabular.csv').sample(frac=1)
+    data = read_csv(f'../../data/air_quality_tabular.csv').sample(frac=0.1)
     data = data.dropna()
 
     data = data.drop('ALARM', 1)

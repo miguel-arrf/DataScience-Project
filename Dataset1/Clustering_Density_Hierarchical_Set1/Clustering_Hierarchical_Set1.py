@@ -13,14 +13,6 @@ data = data.dropna()
 data.pop('PERSON_INJURY')
 data.pop('UNIQUE_ID')
 
-symbolic_vars = get_variable_types(data)['Symbolic']
-for symbolic_var in symbolic_vars:
-    data[symbolic_var] = pd.factorize(data[symbolic_var])[0]
-
-binary_vars = get_variable_types(data)['Binary']
-for binary_var in binary_vars:
-    data[binary_var] = pd.factorize(data[binary_var])[0]
-
 v1 = 6
 v2 = 7
 
@@ -36,6 +28,7 @@ _, axs = subplots(rows, cols, figsize=(cols*5, rows*5), squeeze=False)
 i, j = 0, 0
 for n in range(len(N_CLUSTERS)):
     k = N_CLUSTERS[n]
+    print("k: ", k)
     estimator = AgglomerativeClustering(n_clusters=k)
     estimator.fit(data)
     labels = estimator.labels_
@@ -73,8 +66,10 @@ for i in range(len(METRICS)):
     mae: list = []
     sc: list = []
     m = METRICS[i]
+    print("m: ", m)
     for j in range(len(LINKS)):
         link = LINKS[j]
+        print("links: ", link)
         estimator = AgglomerativeClustering(n_clusters=k, linkage=link, affinity=m )
         estimator.fit(data)
         labels = estimator.labels_

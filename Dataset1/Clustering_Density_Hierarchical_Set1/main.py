@@ -22,6 +22,7 @@ def EPSClustering(data, v1, v2, tag, N_CLUSTERS = [2, 3, 5, 7, 9, 11, 13, 15, 17
     _, axs = subplots(rows, cols, figsize=(cols*5, rows*5), squeeze=False)
     i, j = 0, 0
     for n in range(len(EPS)):
+        print("n: ", EPS[n])
         estimator = DBSCAN(eps=EPS[n], min_samples=2)
         estimator.fit(data)
         labels = estimator.labels_
@@ -45,7 +46,7 @@ def EPSClustering(data, v1, v2, tag, N_CLUSTERS = [2, 3, 5, 7, 9, 11, 13, 15, 17
     savefig(f"images/EPS_Clustering - %s" % (tag))
 
 
-    fig, ax = subplots(2, 2, figsize=(6, 3), squeeze=False)
+    fig, ax = subplots(2, 2, figsize=(6, 6), squeeze=False)
     plot_line(EPS, mse, title='DBSCAN MSE', xlabel='eps', ylabel='MSE', ax=ax[0, 0])
     plot_line(EPS, rmse, title='DBSCAN RMSE', xlabel='eps', ylabel='RMSE', ax=ax[0, 1])
     plot_line(EPS, mae, title='DBSCAN MAE', xlabel='eps', ylabel='MAE', ax=ax[1, 0])

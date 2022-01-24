@@ -1,1 +1,1 @@
-Best results with lr_type=adaptive, learning rate=0.1 and 500 max iter, with precision=0.1277056277056277
+Best results with lr_type=constant, learning rate=0.1 and 1000 max iter, with precision=0.12691466083150985

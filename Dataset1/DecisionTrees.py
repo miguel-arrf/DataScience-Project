@@ -5,7 +5,7 @@ from pandas import unique
 from sklearn.metrics import precision_score
 from sklearn.tree import DecisionTreeClassifier
 
-from ds_charts import multiple_line_chart, horizontal_bar_chart, plot_overfitting_study, plot_evaluation_results
+from ds_charts import multiple_line_chart, horizontal_bar_chart, plot_evaluation_results
 
 
 class DecisionTrees:
@@ -21,7 +21,7 @@ class DecisionTrees:
         best_model = None
 
         figure()
-        fig, axs = subplots(1, 2, figsize=(16, 4), squeeze=False)
+        fig, axs = subplots(1, 2, figsize=(10, 4), squeeze=False)
         for k in range(len(criteria)):
             f = criteria[k]
             print("k: ", f)
@@ -73,8 +73,8 @@ class DecisionTrees:
             imp_values += [importances[indices[f]]]
             print(f'{f + 1}. feature {elems[f]} ({importances[indices[f]]})')
 
-        figure(figsize=(5, 10), dpi=80)
-        horizontal_bar_chart(elems, imp_values, error=None, title='Decision Tree Features importance',
+        figure(figsize=(8, 6), dpi=140)
+        horizontal_bar_chart(elems[0: 5], imp_values[0:5], error=None, title='Decision Tree Features importance',
                              xlabel='importance', ylabel='variables')
         savefig(f'images/decision_trees/dt_ranking.png')
 

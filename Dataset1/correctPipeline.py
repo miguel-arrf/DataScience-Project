@@ -684,7 +684,7 @@ if __name__ == '__main__':
 
                         mvDataset = mv[0].copy()
                         dummified = dummyMethod[0](mvDataset)
-                        dummified = dummified.drop(["EMOTIONAL_STATUS"], axis=1)
+                        #dummified = dummified.drop(["EMOTIONAL_STATUS"], axis=1)
                         dummified = scalingMethod[0](dummified)
 
                         dummified = selectionFeatures[0](dummified, selectionFeatures[2])
@@ -711,12 +711,13 @@ if __name__ == '__main__':
                                   tstX=X_test,
                                   tstY=y_test)
                         
-
+                           '''
                         decisionTrees = DecisionTrees(trnX=X_train,
                                                       trnY=y_train,
                                                       tstX=X_test,
                                                       tstY=y_test)
-                        
+
+                        '''
                         randomForests = RandomForests(trnX=X_train,
                                                       trnY=y_train,
                                                       tstX=X_test,
@@ -726,7 +727,10 @@ if __name__ == '__main__':
                                   trnY=y_train,
                                   tstX=X_test,
                                   tstY=y_test)
+                        '''
 
+
+                        '''
                         gradientBoosting = GradientBoosting(trnX=X_train,
                                   trnY=y_train,
                                   tstX=X_test,

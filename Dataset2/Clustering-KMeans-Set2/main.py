@@ -5,11 +5,13 @@ from ds_charts import choose_grid, plot_clusters, plot_line, get_variable_types,
 from copy import deepcopy
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, mean_absolute_error
-from lib.clusteringAlgos import pca
+from lib.clusteringAlgos import pca, compute_mse, compute_rmse, compute_mae
 import os, math
 
 
-def kmeans(data, v1, v2, tag, N_CLUSTERS = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]):
+def kmeans(data, v1, v2, tag):
+    N_CLUSTERS = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]
+
     rows, cols = choose_grid(len(N_CLUSTERS))
     mse: list = []
     sc: list = []
@@ -20,7 +22,8 @@ def kmeans(data, v1, v2, tag, N_CLUSTERS = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 2
     i = j = 0
     
     for n in range(len(N_CLUSTERS)):
-        estimator = DBSCAN(eps=EPS[n], min_samples=2)
+        print("n : ", N_CLUSTERS[n])
+        estimator = KMeans(n_clusters=N_CLUSTERS[n])
         estimator.fit(data)
         labels = estimator.labels_
         k = len(set(labels)) - (1 if -1 in labels else 0)
@@ -38,7 +41,7 @@ def kmeans(data, v1, v2, tag, N_CLUSTERS = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 2
     
     savefig(f"images/k-mean-%sPCA-clusters.png" % (tag))
 
-    fig, ax = subplots(2, 2, figsize=(6, 3), squeeze=False)
+    fig, ax = subplots(2, 2, figsize=(6, 6), squeeze=False)
     plot_line(N_CLUSTERS, mse, title='K-Means MSE', xlabel='k', ylabel='MSE', ax=ax[0, 0])
     plot_line(N_CLUSTERS, rmse, title='K-Means RMSE', xlabel='k', ylabel='RMSE', ax=ax[0, 1])
     plot_line(N_CLUSTERS, mae, title='K-Means MAE', xlabel='k', ylabel='MAE', ax=ax[1, 0])
@@ -47,7 +50,7 @@ def kmeans(data, v1, v2, tag, N_CLUSTERS = [2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 2
 
 
 if __name__ == "__main__":
-    data = read_csv(f'../../data/air_quality_tabular.csv').sample(frac=1)
+    data = read_csv(f'../../data/air_quality_tabular.csv').sample(frac=0.1)
     data = data.dropna()
 
     data = data.drop('ALARM', 1)
