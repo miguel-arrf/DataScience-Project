@@ -31,7 +31,7 @@ pd.set_option('display.width', 1000)
 
 class Pipeline:
     def __init__(self):
-        filename = '../data/NYC_collisions_tabular.csv'
+        filename = '../../data/air_quality_tabular.csv'
         self.dataset = read_csv(filename, index_col='UNIQUE_ID', na_values='', parse_dates=True,
                                 infer_datetime_format=True)
 
@@ -155,15 +155,15 @@ def dummify(df, vars_to_dummify):
 
 def saveTrainAndTestData(dataset):
     df = dataset.copy()
-    y = df['PERSON_INJURY']
-    X = df.drop(["PERSON_INJURY"], axis=1)
+    y = df['ALARM']
+    X = df.drop(["ALARM"], axis=1)
     return train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
 
 
 def getUndersampling(dataset):
     original = dataset.copy()
 
-    class_var = 'PERSON_INJURY'
+    class_var = 'ALARM'
     target_count = original[class_var].value_counts()
 
     positive_class = target_count.idxmin()
@@ -178,7 +178,7 @@ def getUndersampling(dataset):
 
 def getSmote(dataset):
     original = dataset.copy()
-    class_var = 'PERSON_INJURY'
+    class_var = 'ALARM'
 
     RANDOM_STATE = 42
 
@@ -194,7 +194,7 @@ def getSmote(dataset):
 def getBestUnderstampling(dataset):
     original = dataset.copy()
 
-    class_var = 'PERSON_INJURY'
+    class_var = 'ALARM'
     target_count = original[class_var].value_counts()
 
     positive_class = target_count.idxmin()
@@ -210,7 +210,7 @@ def getBestUnderstampling(dataset):
 
 def getOverSampling(dataset):
     original = dataset.copy()
-    class_var = 'PERSON_INJURY'
+    class_var = 'ALARM'
 
     target_count = original[class_var].value_counts()
 
@@ -239,11 +239,11 @@ def trainKNN(trainX, testX, trainY, testY, model):
         plot_evaluation_results(labels, trainY, prd_trn, testY, prd_tst, extra=f"for {clf}-{model}")
         savefig(f"results/{clf}-{model}.png")
         show()
-        print("\t\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Killed"))
-        print("\t\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Killed"))
+        print("\t\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Danger"))
+        print("\t\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Danger"))
         print()
 
-        return precision_score(testY, prd_tst, pos_label="Killed"), recall_score(testY, prd_tst, pos_label="Killed")
+        return precision_score(testY, prd_tst, pos_label="Danger"), recall_score(testY, prd_tst, pos_label="Danger")
 
 
 def trainNaiveBayes(trainX, testX, trainY, testY, model):
@@ -260,11 +260,11 @@ def trainNaiveBayes(trainX, testX, trainY, testY, model):
         plot_evaluation_results(labels, trainY, prd_trn, testY, prd_tst, extra=f"for {clf}-{model}")
         savefig(f"results/{clf}-{model}.png")
         show()
-        print("\t\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Killed"))
-        print("\t\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Killed"))
+        print("\t\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Danger"))
+        print("\t\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Danger"))
         print()
 
-        return precision_score(testY, prd_tst, pos_label="Killed"), recall_score(testY, prd_tst, pos_label="Killed")
+        return precision_score(testY, prd_tst, pos_label="Danger"), recall_score(testY, prd_tst, pos_label="Danger")
 
 
 def scaleStandardScaler(dataset):
@@ -313,8 +313,8 @@ def selectEverything(dataset, threshold):
 
 def drop_variance(originalDataset, threshold):
     dataset = originalDataset.copy()
-    injury = dataset["PERSON_INJURY"]
-    dataset = dataset.drop(["PERSON_INJURY"], axis=1)
+    injury = dataset["ALARM"]
+    dataset = dataset.drop(["ALARM"], axis=1)
     dataset = dataset.apply(pd.to_numeric)
 
     numeric = get_variable_types(dataset)['Numeric']
@@ -352,8 +352,8 @@ def drop_redundant(data: DataFrame, vars_2drop: dict) -> DataFrame:
 
 def select_redundant(originalDataset, threshold):
     dataset = originalDataset.copy()
-    injury = dataset["PERSON_INJURY"]
-    dataset = dataset.drop(["PERSON_INJURY"], axis=1)
+    injury = dataset["ALARM"]
+    dataset = dataset.drop(["ALARM"], axis=1)
     dataset = dataset.apply(pd.to_numeric)
 
     corr_mtx = dataset.corr()
@@ -454,8 +454,8 @@ if __name__ == '__main__':
 
                         temp = pd.concat([X_train, y_train], axis=1)
                         temp = balancingMethod[0](temp)
-                        y_train = temp["PERSON_INJURY"]
-                        X_train = temp.drop(["PERSON_INJURY"], axis=1)
+                        y_train = temp["ALARM"]
+                        X_train = temp.drop(["ALARM"], axis=1)
 
 
                         # Classification section:
