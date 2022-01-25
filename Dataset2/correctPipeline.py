@@ -7,7 +7,7 @@ from numpy import nan, unique
 from pandas import DataFrame, concat
 from pandas import read_csv
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import precision_score, recall_score
+from sklearn.metrics import precision_score, recall_score, accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from sklearn.neighbors import KNeighborsClassifier
@@ -31,17 +31,17 @@ pd.set_option('display.width', 1000)
 
 class Pipeline:
     def __init__(self):
-        filename = '../../data/air_quality_tabular.csv'
-        self.dataset = read_csv(filename, index_col='UNIQUE_ID', na_values='', parse_dates=True,
+        filename = '../data/air_quality_tabular.csv'
+        self.dataset = read_csv(filename, na_values='', parse_dates=True,
                                 infer_datetime_format=True)
 
         #TODO: SAMPLE DATA
         df_danger = self.dataset[self.dataset["ALARM"] == "Danger"]
         df_safe = self.dataset[self.dataset["ALARM"] == "Safe"]
-        df_safe = df_safe.sample(frac=0.5, random_state=7)
+        df_safe = df_safe.sample(frac=0.3, random_state=7)
         self.dataset = pd.concat([df_danger, df_safe], axis=0)
 
-        self.dataset.drop(["COLLISION_ID"], axis=1, inplace=True)
+        self.dataset.drop(["FID"], axis=1, inplace=True)
         #TODO: Drop variáveis chatas
 
     def removeIncorrectValues(self):
@@ -143,6 +143,10 @@ def dummify(df, vars_to_dummify):
     other_vars = [c for c in df.columns if not c in vars_to_dummify]
     encoder = OneHotEncoder(handle_unknown='ignore', sparse=False, dtype=bool)
     X = df[vars_to_dummify]
+    for column in X.columns:
+        X[column] = X[column].apply(str)
+        X[column] = X[column].astype("string")
+
     encoder.fit(X)
     new_vars = encoder.get_feature_names(vars_to_dummify)
     trans_X = encoder.transform(X)
@@ -241,6 +245,8 @@ def trainKNN(trainX, testX, trainY, testY, model):
         show()
         print("\t\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Danger"))
         print("\t\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Danger"))
+        print("\t\taccuracy value for {}: ".format(clf), accuracy_score(testY, prd_tst))
+
         print()
 
         return precision_score(testY, prd_tst, pos_label="Danger"), recall_score(testY, prd_tst, pos_label="Danger")
@@ -262,6 +268,8 @@ def trainNaiveBayes(trainX, testX, trainY, testY, model):
         show()
         print("\t\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Danger"))
         print("\t\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Danger"))
+        print("\t\taccuracy value for {}: ".format(clf), accuracy_score(testY, prd_tst))
+
         print()
 
         return precision_score(testY, prd_tst, pos_label="Danger"), recall_score(testY, prd_tst, pos_label="Danger")
@@ -387,16 +395,12 @@ if __name__ == '__main__':
     # pipeline.groupSafetyEquipment()
     # pipeline.groupTime()
 
-    pipeline.dataset = pipeline.dataset.drop(["EMOTIONAL_STATUS"], axis=1)
 
     datasetDropMissingValues = pipeline.dropMissingValues()
     datasetReplaceMVByConstant = pipeline.replaceMissingValuesImputationWithConstant()
     datasetReplaceMVByMostCommon = pipeline.replaceMissingValuesImputationWithMostCommon()
 
 
-
-
-    print("saved")
     results = []
     models = []
     for mv in [
@@ -432,11 +436,10 @@ if __name__ == '__main__':
 
                     print("\tBalancing method: ", balancingMethod[1])
                     for selectionFeatures in [
-                        # (selectEverything, "", "-"),
+                        (selectEverything, "", "-"),
                         # (select_redundant, "RedundantFeatures", 0.9),
                         # (select_redundant, "RedundantFeatures", 0.7),
                         # (drop_variance, "selectVariance", 0.9),
-                        (balanceNothing, "noSelection", "")
                     ]:
                         print("\tfeatureSelection: ", selectionFeatures[1])
 
@@ -447,8 +450,6 @@ if __name__ == '__main__':
 
                         print("")
 
-                        if "PERSON_SEX" in dummified.columns:
-                            dummified["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
 
                         X_train, X_test, y_train, y_test = saveTrainAndTestData(dummified)
 
