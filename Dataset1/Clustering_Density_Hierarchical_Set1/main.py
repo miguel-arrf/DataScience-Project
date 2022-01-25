@@ -120,8 +120,8 @@ if __name__ == "__main__":
     
     dataBeforePca, dataAfterPca = deepcopy(data), pca(deepcopy(data))
     
-    EPSClustering(dataBeforePca, 6, 7, "beforePCA")
-    metrics(dataBeforePca, 6, 7, "beforePCA")
+    EPSClustering(dataBeforePca, 1, 2, "beforePCA")
+    metrics(dataBeforePca, 1, 2, "beforePCA")
 
     EPSClustering(dataAfterPca, 0, 1, "afterPCA")
     metrics(dataAfterPca, 0, 1, "afterPCA")

@@ -6,15 +6,15 @@ from matplotlib.pyplot import gca, title
 from sklearn.model_selection import train_test_split
 
 target = 'PERSON_INJURY'
-data = read_csv(f'../data/for_tree_labs.csv')
+data = read_csv(f'../teste_to_use.csv')
 data = data.drop('PERSON_INJURY', 1)
 data = data.drop('UNIQUE_ID', 1)
 data["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
 
 variables = data.columns.values
-eixo_x = 2
-eixo_y = 8
-eixo_z = 10
+print(variables)
+eixo_y = 1
+eixo_z = 2
 
 figure()
 xlabel(variables[eixo_y])

@@ -15,8 +15,8 @@ data.pop('PERSON_INJURY')
 data.pop('UNIQUE_ID')
 print(data.columns)
 
-v1 = 6
-v2 = 7
+v1 = 1
+v2 = 2
 
 N_CLUSTERS = [5, 9, 13, 17, 19, 21, 27, 29]
 rows, cols = choose_grid(len(N_CLUSTERS))

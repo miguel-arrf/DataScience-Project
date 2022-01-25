@@ -2,7 +2,7 @@ from pandas import unique
 from matplotlib.pyplot import figure, savefig, show
 from ds_charts import bar_chart
 from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 
 
 class NaiveBayes:
@@ -29,6 +29,7 @@ class NaiveBayes:
                 score[2].append(clf)
                 estimators[clf].fit(trnX, trnY)
                 prdY = estimators[clf].predict(tstX)
+                print(confusion_matrix(tstY, prdY))
                 score[1].append(score[0](tstY, prdY, pos_label="Killed"))
 
         for clf in estimators:

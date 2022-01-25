@@ -20,9 +20,8 @@ print(data.columns)
 
 # start pca
 
-eixo_x = 1
-eixo_y = 6
-eixo_z = 7
+eixo_y = 1
+eixo_z = 2
 
 mean = (data.mean(axis=0)).tolist()
 centered_data = data - mean

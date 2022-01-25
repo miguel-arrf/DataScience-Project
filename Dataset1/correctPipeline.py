@@ -393,7 +393,8 @@ def encode(dataset):
         encoding.append(data)
 
         for value in data:
-            dataset_copy[sheetNames[sheet]].loc[(dataset_copy[sheetNames[sheet]] == value['Name'])] = value['Value']
+            if sheetNames[sheet] != "EMOTIONAL_STATUS":
+                dataset_copy[sheetNames[sheet]].loc[(dataset_copy[sheetNames[sheet]] == value['Name'])] = value['Value']
 
     encode_EJECTION_LOCATION_ROLE_TYPE(dataset_copy)
 
@@ -452,7 +453,7 @@ def getBestUnderstampling(dataset):
 
     df_positives = original[original[class_var] == positive_class]
     df_negatives = original[original[class_var] == negative_class]
-    df_negatives = df_negatives.sample(10000)  # Sampled df_negatives
+    df_negatives = df_negatives.sample(15000)  # Sampled df_negatives
     # df_neg_sample = DataFrame(df_negatives.sample(len(df_positives)))
     df_under = concat([df_positives, df_negatives], axis=0)
     return getSmote(df_under)
@@ -476,7 +477,7 @@ def getOverSampling(dataset):
 
 
 def trainKNN(trainX, testX, trainY, testY, model):
-    estimators = {'KNN': KNeighborsClassifier(n_neighbors=6, metric='euclidean')}
+    estimators = {'KNN': KNeighborsClassifier(n_neighbors=5, metric='euclidean')}
 
     labels = unique(trainY)
     labels.sort()
@@ -635,62 +636,70 @@ if __name__ == '__main__':
     pipeline.removeIncorrectValues()
 
     # pipeline.groupSafetyEquipment()
-    pipeline.groupTime()
+    # pipeline.groupTime()
+
+    pipeline.dataset = pipeline.dataset.drop(["EMOTIONAL_STATUS"], axis=1)
 
     datasetCustomImputation = pipeline.customMissingValuesImputation()
     datasetReplaceMVByConstant = pipeline.replaceMissingValuesImputationWithConstant()
     datasetReplaceMVByMostCommon = pipeline.replaceMissingValuesImputationWithMostCommon()
 
     select_redundant(scaleStandardScaler(encode(datasetCustomImputation)), 0.7).to_csv("teste_to_use.csv")
+    scaleStandardScaler(dummifyDataset(datasetCustomImputation)).to_csv("teste_to_use_encoded.csv")
+
     print("saved")
     results = []
     models = []
     for mv in [
-        (datasetCustomImputation, "customImputation"),
+        #(datasetCustomImputation, "customImputation"),
         #(datasetReplaceMVByMostCommon, "ReplaceMVByMostCommon"),
-        #(datasetReplaceMVByConstant, "ReplaceMVByConstant")
+        (datasetReplaceMVByConstant, "ReplaceMVByConstant")
     ]:
 
         print("____________")
         print("Missing value imputation method: ", mv[1])
         print()
+
         for dummyMethod in [
-            (encode, "ordinalEncoding"),
-            #(dummifyDataset, "oneHot"),
+            #(encode, "ordinalEncoding"),
+            (dummifyDataset, "oneHot"),
         ]:
             print("\tEncoding method: ", dummyMethod[1])
 
             for scalingMethod in [
                 (scaleStandardScaler, "z-score"),
-                # (scaleMinMaxScaler, "minMax")
-                # (balanceNothing, "")
+                #(scaleMinMaxScaler, "minMax"),
+                (balanceNothing, "")
             ]:
                 print("\tScaling method: ", scalingMethod[1])
 
-                for balancingMethod in [(getBestUnderstampling, "bestUnderSampling"),
-                                        # (getUndersampling, "UnderSampling"),
-                                        # (getSmote, "Smote"),
-                                        # (getOverSampling, "OverSampling"),
-                                        # (balanceNothing, "noBalancing")
+                for balancingMethod in [
+                                       #(getBestUnderstampling, "bestUnderSampling"),
+                                         #(getUndersampling, "UnderSampling"),
+                                         #(getSmote, "Smote"),
+                                         #(getOverSampling, "OverSampling"),
+                                        (balanceNothing, "")
                                         ]:
+
                     print("\tBalancing method: ", balancingMethod[1])
                     for selectionFeatures in [
-                        # (selectEverything, "selectEverything", "-"),
-                        # (drop_variance, "selectVariance", 0.9)
-                        # (select_redundant, "RedundantFeatures", 0.9),
-                        (select_redundant, "RedundantFeatures", 0.7),
+                        #(selectEverything, "", "-"),
+                        #(select_redundant, "RedundantFeatures", 0.9),
+                        #(select_redundant, "RedundantFeatures", 0.7),
+                        #(drop_variance, "selectVariance", 0.9),
+                        (balanceNothing, "noSelection", "")
                     ]:
                         print("\tfeatureSelection: ", selectionFeatures[1])
 
                         mvDataset = mv[0].copy()
                         dummified = dummyMethod[0](mvDataset)
-                        #dummified = dummified.drop(["EMOTIONAL_STATUS"], axis=1)
                         dummified = scalingMethod[0](dummified)
-
                         dummified = selectionFeatures[0](dummified, selectionFeatures[2])
+
                         print("")
 
-                        # dummified["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
+                        if "PERSON_SEX" in dummified.columns:
+                            dummified["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
 
                         X_train, X_test, y_train, y_test = saveTrainAndTestData(dummified)
 
@@ -699,6 +708,8 @@ if __name__ == '__main__':
                         y_train = temp["PERSON_INJURY"]
                         X_train = temp.drop(["PERSON_INJURY"], axis=1)
 
+
+                        # Classification section:
                         '''
                         naiveBayes = NaiveBayes( trnX=X_train,
                                                 trnY=y_train,
@@ -711,13 +722,11 @@ if __name__ == '__main__':
                                   tstX=X_test,
                                   tstY=y_test)
                         
-                           '''
+
                         decisionTrees = DecisionTrees(trnX=X_train,
                                                       trnY=y_train,
                                                       tstX=X_test,
                                                       tstY=y_test)
-
-                        '''
                         randomForests = RandomForests(trnX=X_train,
                                                       trnY=y_train,
                                                       tstX=X_test,
@@ -727,17 +736,16 @@ if __name__ == '__main__':
                                   trnY=y_train,
                                   tstX=X_test,
                                   tstY=y_test)
-                        '''
 
-
-                        '''
                         gradientBoosting = GradientBoosting(trnX=X_train,
                                   trnY=y_train,
                                   tstX=X_test,
                                   tstY=y_test)
                         '''
 
-                        '''
+
+
+                        # Methods evaluation:
                         dicionary = {}
 
                         prNB, recallNB = trainNaiveBayes(X_train, X_test, y_train, y_test,
@@ -753,11 +761,12 @@ if __name__ == '__main__':
                             prKNN, recallKNN)
 
                         results.append(dicionary)
-                        '''
 
-    '''
+
     print("Results:")
     for result in results:
-        print(result)
+        for key, value in result.items():
+            print(key, " ", value)
+
         print()
-    '''
+
