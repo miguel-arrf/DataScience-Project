@@ -405,7 +405,7 @@ if __name__ == '__main__':
     models = []
     for mv in [
         (datasetDropMissingValues, "dropMissingValues"),
-        # (datasetReplaceMVByMostCommon, "ReplaceMVByMostCommon"),
+        (datasetReplaceMVByMostCommon, "ReplaceMVByMostCommon"),
         (datasetReplaceMVByConstant, "ReplaceMVByConstant")
     ]:
 
@@ -414,13 +414,14 @@ if __name__ == '__main__':
         print()
 
         for dummyMethod in [
-            # (encode, "ordinalEncoding"),
-            (dummifyDataset, "oneHot"),
+            #(balanceNothing, "dummyNothing"),
+            #(encode, "ordinalEncoding"),
+            #(dummifyDataset, "oneHot"),
         ]:
             print("\tEncoding method: ", dummyMethod[1])
 
             for scalingMethod in [
-                (scaleStandardScaler, "z-score"),
+                #(scaleStandardScaler, "z-score"),
                 # (scaleMinMaxScaler, "minMax"),
                 (balanceNothing, "")
             ]:
@@ -428,7 +429,7 @@ if __name__ == '__main__':
 
                 for balancingMethod in [
                     # (getBestUnderstampling, "bestUnderSampling"),
-                    # (getUndersampling, "UnderSampling"),
+                    # (getUndersampling, "UnderSampling"), no dataset 1 esta não é usada
                     # (getSmote, "Smote"),
                     # (getOverSampling, "OverSampling"),
                     (balanceNothing, "")
