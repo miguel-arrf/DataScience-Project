@@ -20,6 +20,7 @@ class GradientBoosting:
         last_best = 0
         best_model = None
 
+
         cols = len(max_depths)
         figure()
         fig, axs = subplots(1, cols, figsize=(cols * HEIGHT, HEIGHT), squeeze=False)
@@ -45,6 +46,12 @@ class GradientBoosting:
                                 xlabel='nr estimators', ylabel='precision', percentage=True)
         savefig(f'images/gradient_boosting/gb_study.png')
         show()
+
+
+        #best = (10, 0.9, 300)
+        #best_model = GradientBoostingClassifier(n_estimators=300, max_depth=10, learning_rate=0.9)
+        #best_model.fit(trnX, trnY)
+
         print('Best results with depth=%d, learning rate=%1.2f and %d estimators, with precision=%1.2f' % (
             best[0], best[1], best[2], last_best))
 
@@ -54,6 +61,7 @@ class GradientBoosting:
         plot_evaluation_results(labels, trnY, prd_trn, tstY, prd_tst, extra="")
         savefig(f'images/gradient_boosting/gb_best.png')
         show()
+
 
         # Feature Importance:
         variables = trnX.columns

@@ -19,7 +19,6 @@ class RandomForests:
         last_best = 0
         best_model = None
 
-
         cols = len(max_depths)
         figure()
         fig, axs = subplots(1, cols, figsize=(cols * HEIGHT, HEIGHT), squeeze=False)
@@ -47,18 +46,17 @@ class RandomForests:
         savefig(f'images/random_forests/rf_study.png')
         show()
         print('Best results with depth=%d, %1.2f features and %d estimators, with precision=%1.2f' % (
-        best[0], best[1], best[2], last_best))
+            best[0], best[1], best[2], last_best))
 
-        best = (25, 0.70, 100)
-        best_model = RandomForestClassifier(n_estimators=best[2], max_depth=best[0], max_features=best[1])
-        best_model.fit(trnX, trnY)
+        #best = (25, 0.70, 100)
+        #best_model = RandomForestClassifier(n_estimators=best[2], max_depth=best[0], max_features=best[1])
+        #best_model.fit(trnX, trnY)
 
         prd_trn = best_model.predict(trnX)
         prd_tst = best_model.predict(tstX)
         plot_evaluation_results(labels, trnY, prd_trn, tstY, prd_tst, extra="")
         savefig(f'images/random_forests/rf_best.png')
         show()
-
 
         from numpy import std, argsort
 
@@ -75,7 +73,6 @@ class RandomForests:
         horizontal_bar_chart(elems, importances[indices], stdevs[indices], title='Random Forest Features importance',
                              xlabel='importance', ylabel='variables')
         savefig(f'images/random_forests/rf_ranking.png')
-
 
         # Overfitting
         def plot_overfitting_study(xvalues, prd_trn, prd_tst, name, xlabel, ylabel, extra=""):
@@ -106,5 +103,3 @@ class RandomForests:
             'Best results achieved with %s criteria, depth=%d and min_impurity_decrease=%1.2f ==> precision=%1.2f' % (
                 best[0], best[1], best[2], last_best))
         f.close()
-
-

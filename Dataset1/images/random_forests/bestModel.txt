@@ -1,1 +1,1 @@
-Best results achieved with 25 criteria, depth=0 and min_impurity_decrease=100.00 ==> precision=0.33
+Best results achieved with 25 criteria, depth=1 and min_impurity_decrease=10.00 ==> precision=0.31

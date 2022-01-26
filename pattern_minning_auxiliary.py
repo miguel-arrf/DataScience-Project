@@ -26,7 +26,7 @@ def dummify(df, vars_to_dummify):
 def dummifyDataset(data):
     dataset = data.copy()
     variables = get_variable_types(dataset)['Symbolic']
-    print()
+    print(variables)
 
 
 
@@ -36,9 +36,6 @@ def dummifyDataset(data):
 '''
 set1_equal_width = pandas.read_csv("/Users/miguelferreira/Downloads/novosFicheiros/set1_equal_width.csv")
 set1_equal_frequency = pandas.read_csv("/Users/miguelferreira/Downloads/novosFicheiros/set1_equal_freq.csv")
-
-set2_equal_width = pandas.read_csv("/Users/miguelferreira/Downloads/novosFicheiros/set2_equal_width.csv")
-set2_equal_fequency = pandas.read_csv("/Users/miguelferreira/Downloads/novosFicheiros/set2_equal_freq.csv")
 
 
 d1_1 = dummifyDataset(set1_equal_width)
@@ -51,6 +48,9 @@ print(d1_2.shape)
 d1_2.to_csv("set1_equal_frequency_dummy.csv")
 print("Done")
 
+set2_equal_width = pandas.read_csv("/Users/miguelferreira/Downloads/novosFicheiros/set2_equal_width.csv")
+set2_equal_fequency = pandas.read_csv("/Users/miguelferreira/Downloads/novosFicheiros/set2_equal_freq.csv")
+
 d2_1 = dummifyDataset(set2_equal_width)
 print(d2_1.shape)
 d2_1.to_csv("set2_equal_width_dummy.csv")
@@ -60,9 +60,16 @@ d2_2 = dummifyDataset(set2_equal_fequency)
 print(d2_2.shape)
 d2_2.to_csv("set2_equal_frequency_dummy.csv")
 print("Done")
-'''
+
 
 print(pandas.read_csv("set2_equal_frequency_dummy.csv").shape)
 print(pandas.read_csv("set2_equal_width_dummy.csv").shape)
+'''
 
+set2_default = pandas.read_csv("/Users/miguelferreira/Downloads/novosFicheiros/set2_default.csv")
+set2_default.pop("date")
+print(set2_default.shape)
+d2_3 = dummifyDataset(set2_default)
+d2_3.to_csv("set2_default_dummy.csv")
+print(pandas.read_csv("set2_default_dummy.csv").shape)
 

@@ -651,9 +651,9 @@ if __name__ == '__main__':
     results = []
     models = []
     for mv in [
-        #(datasetCustomImputation, "customImputation"),
+        (datasetCustomImputation, "customImputation"),
         #(datasetReplaceMVByMostCommon, "ReplaceMVByMostCommon"),
-        (datasetReplaceMVByConstant, "ReplaceMVByConstant")
+        #(datasetReplaceMVByConstant, "ReplaceMVByConstant")
     ]:
 
         print("____________")
@@ -661,33 +661,33 @@ if __name__ == '__main__':
         print()
 
         for dummyMethod in [
-            #(encode, "ordinalEncoding"),
-            (dummifyDataset, "oneHot"),
+            (encode, "ordinalEncoding"),
+            #(dummifyDataset, "oneHot"),
         ]:
             print("\tEncoding method: ", dummyMethod[1])
 
             for scalingMethod in [
                 (scaleStandardScaler, "z-score"),
                 #(scaleMinMaxScaler, "minMax"),
-                (balanceNothing, "")
+                #(balanceNothing, "")
             ]:
                 print("\tScaling method: ", scalingMethod[1])
 
                 for balancingMethod in [
-                                       #(getBestUnderstampling, "bestUnderSampling"),
+                                       (getBestUnderstampling, "bestUnderSampling"),
                                          #(getUndersampling, "UnderSampling"),
                                          #(getSmote, "Smote"),
                                          #(getOverSampling, "OverSampling"),
-                                        (balanceNothing, "")
+                                       # (balanceNothing, "")
                                         ]:
 
                     print("\tBalancing method: ", balancingMethod[1])
                     for selectionFeatures in [
                         #(selectEverything, "", "-"),
                         #(select_redundant, "RedundantFeatures", 0.9),
-                        #(select_redundant, "RedundantFeatures", 0.7),
+                        (select_redundant, "RedundantFeatures", 0.7),
                         #(drop_variance, "selectVariance", 0.9),
-                        (balanceNothing, "noSelection", "")
+                        #(balanceNothing, "noSelection", "")
                     ]:
                         print("\tfeatureSelection: ", selectionFeatures[1])
 
@@ -708,7 +708,10 @@ if __name__ == '__main__':
                         y_train = temp["PERSON_INJURY"]
                         X_train = temp.drop(["PERSON_INJURY"], axis=1)
 
-
+                        randomForests = RandomForests(trnX=X_train,
+                                                      trnY=y_train,
+                                                      tstX=X_test,
+                                                      tstY=y_test)
                         # Classification section:
                         '''
                         naiveBayes = NaiveBayes( trnX=X_train,
@@ -741,7 +744,7 @@ if __name__ == '__main__':
                                   trnY=y_train,
                                   tstX=X_test,
                                   tstY=y_test)
-                        '''
+                        
 
 
 
@@ -761,6 +764,7 @@ if __name__ == '__main__':
                             prKNN, recallKNN)
 
                         results.append(dicionary)
+                        '''
 
 
     print("Results:")
