@@ -4,7 +4,7 @@ from chinese_holiday import get_holiday_data
 from pandas import read_csv
 
 file = 'air_quality_tabular'
-filename = 'data/air_quality_tabular.csv'
+filename = '../data/air_quality_tabular.csv'
 data = read_csv(filename)
 
 values = {'nr records': data.shape[0], 'nr variables': data.shape[1]}
@@ -45,4 +45,4 @@ def transform_date(v):
 
 
 data['date'] = data['date'].apply(lambda x: transform_date(x))
-data.to_csv(f'data/{file}_granularity.csv', index=False)
+data.to_csv(f'../data/{file}_granularity.csv', index=False)

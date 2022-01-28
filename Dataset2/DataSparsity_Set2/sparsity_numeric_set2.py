@@ -5,9 +5,11 @@ from matplotlib.pyplot import subplots, savefig, show
 from ds_charts import get_variable_types, HEIGHT
 
 register_matplotlib_converters()
-filename = '../data/air_quality_tabular.csv'
+filename = '../../data/air_quality_tabular.csv'
 data = read_csv(filename, index_col='FID', parse_dates=True, infer_datetime_format=True)
-
+data.pop('GbCity')
+data.pop('GbProv')
+data.pop('Field_1')
 numeric_vars = get_variable_types(data)['Numeric']
 numeric_vars.append('ALARM')
 if [] == numeric_vars:
