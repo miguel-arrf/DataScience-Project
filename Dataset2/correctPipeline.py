@@ -459,9 +459,9 @@ if __name__ == '__main__':
                 for balancingMethod in [
                     #(getBestUnderstampling, "bestUnderSampling"),
                     #(getUndersampling, "UnderSampling"),
-                    #(getSmote, "Smote"),
+                    (getSmote, "Smote"),
                     #(getOverSampling, "OverSampling"),
-                    (balanceNothing, "")
+                    #(balanceNothing, "")
                 ]:
 
                     print("\tBalancing method: ", balancingMethod[1])
@@ -492,16 +492,16 @@ if __name__ == '__main__':
 
                         # Classification section:
 
-                        """naiveBayes = NaiveBayes(trnX=X_train,
+                        naiveBayes = NaiveBayes(trnX=X_train,
                                                 trnY=y_train,
                                                 tstX=X_test,
                                                 tstY=y_test)
 
 
-                        knn = KNN(trnX=X_train,
+                        """knn = KNN(trnX=X_train,
                                   trnY=y_train,
                                   tstX=X_test,
-                                  tstY=y_test)
+                                  tstY=y_test)"""
 
 
                         decisionTrees = DecisionTrees(trnX=X_train,
@@ -509,17 +509,17 @@ if __name__ == '__main__':
                                                       tstX=X_test,
                                                       tstY=y_test)
 
-                        randomForests = RandomForests(trnX=X_train,
+                        """randomForests = RandomForests(trnX=X_train,
                                                       trnY=y_train,
                                                       tstX=X_test,
-                                                      tstY=y_test)
+                                                      tstY=y_test)"""
 
                         mlp = MLP(trnX=X_train,
                                   trnY=y_train,
                                   tstX=X_test,
                                   tstY=y_test)
 
-                        gradientBoosting = GradientBoosting(trnX=X_train,
+                        """gradientBoosting = GradientBoosting(trnX=X_train,
                                   trnY=y_train,
                                   tstX=X_test,
                                   tstY=y_test)"""

@@ -82,7 +82,7 @@ class KNN:
         plot_overfitting_study(nvalues, y_trn_values, y_tst_values, name=f'KNN_K={d}recall', xlabel='K',
                                ylabel="recall", extra="recall")
 
-        f = open(f"images/knn/bestModel.txt", "w")
+        f = open(f"images_withFS/knn/bestModel.txt", "w")
         f.write('Best results with %d neighbors and %s' % (best[0], best[1]))
         f.close()
 
