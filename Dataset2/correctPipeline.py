@@ -15,7 +15,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import *
 
 from Dataset2.DecisionTrees import DecisionTrees
-from Dataset2.Gradientboosting import GradientBoosting
+from Dataset2.GradientBoosting import GradientBoosting
 from Dataset2.MLP import MLP
 from Dataset1.MissingValuesImputation_Set1 import imputation_function_apply_set1
 from Dataset2.NaiveBayes import NaiveBayes
@@ -494,38 +494,38 @@ if __name__ == '__main__':
                         naiveBayes = NaiveBayes(trnX=X_train,
                                                 trnY=y_train,
                                                 tstX=X_test,
-                                                tstY=y_test)
+                                                tstY=y_test,imagePath="images")
 
 
-                        """knn = KNN(trnX=X_train,
+                        knn = KNN(trnX=X_train,
                                   trnY=y_train,
                                   tstX=X_test,
-                                  tstY=y_test)"""
+                                  tstY=y_test,imagePath="images")
 
 
                         decisionTrees = DecisionTrees(trnX=X_train,
                                                       trnY=y_train,
                                                       tstX=X_test,
-                                                      tstY=y_test)
+                                                      tstY=y_test,imagePath="images")
 
-                        """randomForests = RandomForests(trnX=X_train,
+                        randomForests = RandomForests(trnX=X_train,
                                                       trnY=y_train,
                                                       tstX=X_test,
-                                                      tstY=y_test)"""
+                                                      tstY=y_test,imagePath="images")
 
                         mlp = MLP(trnX=X_train,
                                   trnY=y_train,
                                   tstX=X_test,
-                                  tstY=y_test)
+                                  tstY=y_test,imagePath="images")
 
-                        """gradientBoosting = GradientBoosting(trnX=X_train,
+                        gradientBoosting = GradientBoosting(trnX=X_train,
                                   trnY=y_train,
                                   tstX=X_test,
-                                  tstY=y_test)"""
+                                  tstY=y_test,imagePath="images")
 
 
                         # Methods evaluation:
-                        dicionary = {}
+                        """                        dicionary = {}
 
                         prNB, recallNB, spNB, accNB = trainNaiveBayes(X_train, X_test, y_train, y_test,
                                                          model=f"{dummyMethod[1]}-{mv[1]}-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}")
@@ -539,7 +539,7 @@ if __name__ == '__main__':
                             f"{mv[1]}-{dummyMethod[1]}-KNN-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}"] = "precision:{:.2f} <-> recall:{:.2f} <-> specificity:{:.2f} <-> accuracy:{:.2f}".format(
                             prKNN, recallKNN, spKNN, accKNN)
 
-                        results.append(dicionary)
+                        results.append(dicionary)"""
 
     print("Results:")
     for result in results:
