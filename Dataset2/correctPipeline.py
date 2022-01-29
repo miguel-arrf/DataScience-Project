@@ -477,7 +477,6 @@ if __name__ == '__main__':
                         dummified = dummyMethod[0](mvDataset)
                         dummified = scalingMethod[0](dummified)
                         dummified = selectionFeatures[0](dummified, selectionFeatures[2])
-                        exit(0)
                         print("")
                         print(len(dummified.columns))
                         #dummified["ALARM"].replace(('Danger', 'Safe'), (1, 0), inplace=True)
