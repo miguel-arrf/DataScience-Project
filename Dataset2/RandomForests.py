@@ -103,7 +103,7 @@ class RandomForests:
 
         f = open(f"images/random_forests/bestModel.txt", "w")
         f.write(
-            'Best results achieved with %s criteria, depth=%d and min_impurity_decrease=%1.2f ==> precision=%1.2f' % (
+            'Best results achieved with depth=%d, %1.2f features and %d estimators ==> precision=%1.2f' % (
                 best[0], best[1], best[2], last_best))
         f.close()
 
