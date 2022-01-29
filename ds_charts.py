@@ -32,7 +32,7 @@ def choose_grid(nr):
         return (nr // NR_COLUMNS, NR_COLUMNS) if nr % NR_COLUMNS == 0 else (nr // NR_COLUMNS + 1, NR_COLUMNS)
 
 
-def set_elements(ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel: str = '', percentage: bool = False):
+def set_elements(ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel: str = '', percentage: bool = False, extraPercentage = None, minExtraPercentage = None):
     if ax is None:
         ax = plt.gca()
     ax.set_title(title)
@@ -40,6 +40,12 @@ def set_elements(ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel:
     ax.set_ylabel(ylabel)
     if percentage:
         ax.set_ylim(0.0, 1.0)
+    else:
+        if extraPercentage is not None:
+            if minExtraPercentage is not None:
+                ax.set_ylim(minExtraPercentage, extraPercentage)
+            else:
+                ax.set_ylim(0.0, extraPercentage)
     return ax
 
 
@@ -70,14 +76,15 @@ def plot_line(xvalues: list, yvalues: list, ax: plt.Axes = None, title: str = ''
 
 
 def multiple_line_chart(xvalues: list, yvalues: dict, ax: plt.Axes = None, title: str = '', xlabel: str = '',
-                        ylabel: str = '', percentage: bool = False, rotation: bool = False):
-    ax = set_elements(ax=ax, title=title, xlabel=xlabel, ylabel=ylabel, percentage=percentage)
+                        ylabel: str = '', percentage: bool = False, rotation: bool = False, extraPercentage = 1.0, minExtraPercentage = 0.0):
+    ax = set_elements(ax=ax, title=title, xlabel=xlabel, ylabel=ylabel, percentage=percentage, extraPercentage= extraPercentage, minExtraPercentage = minExtraPercentage)
     set_locators(xvalues, ax=ax, rotation=rotation)
     legend: list = []
     for name, y in yvalues.items():
         ax.plot(xvalues, y)
         legend.append(name)
     ax.legend(legend)
+    plt.tight_layout()
 
 
 def bar_chart(xvalues: list, yvalues: list, ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel: str = '',
@@ -87,6 +94,7 @@ def bar_chart(xvalues: list, yvalues: list, ax: plt.Axes = None, title: str = ''
     ax.bar(xvalues, yvalues, edgecolor=cfg.LINE_COLOR, color=cfg.FILL_COLOR, tick_label=xvalues)
     for i in range(len(yvalues)):
         ax.text(i, yvalues[i] + TEXT_MARGIN, f'{yvalues[i]:.2f}', ha='center', fontproperties=FONT_TEXT)
+    plt.tight_layout()
 
 
 def multiple_bar_chart(xvalues: list, yvalues: dict, ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel: str = '',
@@ -103,6 +111,7 @@ def multiple_bar_chart(xvalues: list, yvalues: dict, ax: plt.Axes = None, title:
     legend = []
     for metric in yvalues:
         ax.bar(pos_group, yvalues[metric], width=width, edgecolor=cfg.LINE_COLOR, color=cfg.ACTIVE_COLORS[i])
+
         values = yvalues[metric]
         legend.append(metric)
         for k in range(len(values)):
@@ -125,9 +134,10 @@ def plot_evaluation_results(labels: ndarray, trn_y, prd_trn, tst_y, prd_tst, ext
                   'Precision': [tp_trn / (tp_trn + fp_trn), tp_tst / (tp_tst + fp_tst)]}
 
     fig, axs = plt.subplots(1, 2, figsize=(2 * HEIGHT, HEIGHT))
-    multiple_bar_chart(['Train', 'Test'], evaluation, ax=axs[0], title=f"Train and Test sets {extra}",
+    multiple_bar_chart(['Train', 'Test'], evaluation, ax=axs[0], title=f"Train and Test sets - {extra}",
                        percentage=True)
-    plot_confusion_matrix(cnf_mtx_tst, labels, ax=axs[1], title='Test')
+    plot_confusion_matrix(cnf_mtx_tst, labels, ax=axs[1], title=f'Test - {extra}')
+    plt.tight_layout()
 
 
 def horizontal_bar_chart(elements: list, values: list, error: list, ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel: str = ''):

@@ -1,14 +1,14 @@
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import show, figure, savefig, subplots
 from pandas import unique
-from sklearn.metrics import precision_score
+from sklearn.metrics import precision_score, recall_score
 from sklearn.neural_network import MLPClassifier
 
 from ds_charts import multiple_line_chart, plot_evaluation_results, HEIGHT
 
 
 class MLP:
-    def __init__(self, trnX, trnY, tstY, tstX):
+    def __init__(self, trnX, trnY, tstY, tstX, imagePath):
         labels = unique(trnY)
         labels.sort()
 
@@ -38,23 +38,23 @@ class MLP:
                                         learning_rate_init=lr, max_iter=n, verbose=False)
                     mlp.fit(trnX, trnY)
                     prdY = mlp.predict(tstX)
-                    yvalues.append(precision_score(tstY, prdY))
+                    yvalues.append(recall_score(tstY, prdY))
                     if yvalues[-1] > last_best:
                         best = (d, lr, n)
                         last_best = yvalues[-1]
                         best_model = mlp
                 values[lr] = yvalues
             multiple_line_chart(max_iter, values, ax=axs[0, k], title=f'MLP with lr_type={d}',
-                                xlabel='mx iter', ylabel='precision', percentage=True)
-        savefig(f'images/mlp/mlp_study.png')
+                                xlabel='mx iter', ylabel='recall', percentage=True)
+        savefig(f'{imagePath}/mlp/mlp_study.png', dpi=300)
         #show()
         print(
             f'Best results with lr_type={best[0]}, learning rate={best[1]} and {best[2]} max iter, with precision={last_best}')
 
         prd_trn = best_model.predict(trnX)
         prd_tst = best_model.predict(tstX)
-        plot_evaluation_results(["Safe", "Danger"], trnY, prd_trn, tstY, prd_tst, extra="")
-        savefig(f'images/mlp/mlp_best.png')
+        plot_evaluation_results(["Safe", "Danger"], trnY, prd_trn, tstY, prd_tst, extra="MLP")
+        savefig(f'{imagePath}/mlp/mlp_best.png', dpi=300)
         #show()
 
         # Overfitting
@@ -63,7 +63,8 @@ class MLP:
             plt.figure()
             multiple_line_chart(xvalues, evals, ax=None, title=f'Overfitting {name}', xlabel=xlabel, ylabel=ylabel,
                                 percentage=True)
-            plt.savefig(f'images/mlp/overfitting_{extra}.png')
+            plt.tight_layout()
+            plt.savefig(f'{imagePath}/mlp/overfitting_{extra}.png', dpi=300)
 
         lr_type = best[0]
         lr = best[1]
@@ -75,11 +76,11 @@ class MLP:
             mlp.fit(trnX, trnY)
             prd_tst_Y = mlp.predict(tstX)
             prd_trn_Y = mlp.predict(trnX)
-            y_tst_values.append(precision_score(tstY, prd_tst_Y))
-            y_trn_values.append(precision_score(trnY, prd_trn_Y))
+            y_tst_values.append(recall_score(tstY, prd_tst_Y))
+            y_trn_values.append(recall_score(trnY, prd_trn_Y))
         plot_overfitting_study(max_iter, y_trn_values, y_tst_values, name=f'NN_lr_type={lr_type}_lr={lr}',
-                               xlabel='nr episodes', ylabel="precision")
+                               xlabel='nr episodes', ylabel="recall")
 
-        f = open(f"images/mlp/bestModel.txt", "w")
+        f = open(f"{imagePath}/mlp/bestModel.txt", "w")
         f.write(f'Best results with lr_type={best[0]}, learning rate={best[1]} and {best[2]} max iter, with precision={last_best}')
         f.close()
