@@ -35,7 +35,7 @@ labels = unique(trnY)
 labels.sort()
 
 mlp = MLPClassifier(activation='logistic', solver='sgd', learning_rate='constant',
-                    learning_rate_init=0.1, max_iter=100, verbose=False)
+                    learning_rate_init=0.1, max_iter=400, verbose=False)
 mlp.fit(trnX, trnY)
 
 prd_trn = mlp.predict(trnX)

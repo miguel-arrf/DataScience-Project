@@ -1,10 +1,11 @@
+import matplotlib.pyplot as plt
 from pandas import read_csv
 from ds_charts import get_variable_types, choose_grid, HEIGHT
 from matplotlib.pyplot import subplots, savefig, show
 import os
 
 currentPath = "/".join(os.path.abspath(__file__).split("/")[:-1]) 
-filename =  currentPath + '/../data/air_quality_tabular.csv'
+filename =  '../../data/air_quality_tabular.csv'
 
 data = read_csv(filename)
 
@@ -26,5 +27,6 @@ for i in range(rows):
         axs[i, j].set_ylabel('Nr records')
         axs[i, j].hist(data[variables[i]].values, bins=bins[j])
 
-savefig(currentPath + '/images/granularity_study.png')
+plt.tight_layout()
+savefig(currentPath + '/images/granularity_study.png', dpi=150)
 show()

@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.pyplot import show, subplots, savefig
 from pandas.plotting import register_matplotlib_converters
@@ -9,10 +10,11 @@ import os
 register_matplotlib_converters()
 currentPath = "/".join(os.path.abspath(__file__).split("/")[:-1])
 filename =   '../../data/NYC_collisions_tabular.csv'
+filename = "../teste_to_use.csv"
 
 data = pd.read_csv(filename, index_col="UNIQUE_ID", na_values='', parse_dates=True, infer_datetime_format=True)
-data = data.drop(["VEHICLE_ID", "COLLISION_ID", "PERSON_ID"], axis=1)
-data = data.loc[(data['PERSON_AGE'] < 140) & (data['PERSON_AGE'] >= 0)]
+#data = data.drop(["VEHICLE_ID", "COLLISION_ID", "PERSON_ID"], axis=1)
+#data = data.loc[(data['PERSON_AGE'] < 140) & (data['PERSON_AGE'] >= 0)]
 
 symbolic_vars = get_variable_types(data)['Symbolic']
 
@@ -21,7 +23,7 @@ if not symbolic_vars:
 print(symbolic_vars)
 print(len(symbolic_vars))
 rows, cols = choose_grid(len(symbolic_vars))
-fig, axs = subplots(rows, cols, figsize=(cols * HEIGHT*2, rows * HEIGHT*4,), squeeze=False)
+fig, axs = subplots(rows, cols, figsize=(cols * HEIGHT, rows * HEIGHT), squeeze=False)
 i, j = 0, 0
 for n in range(len(symbolic_vars)):
     counts = data[symbolic_vars[n]].value_counts()
@@ -32,7 +34,9 @@ for n in range(len(symbolic_vars)):
               xlabel=symbolic_vars[n], ylabel='nr records', percentage=False)
     i, j = (i + 1, 0) if (n + 1) % cols == 0 else (i, j + 1)
 print("já está")
+plt.tight_layout()
 savefig(currentPath + "/images/histograms_symbolic.png", dpi=300)
+show()
 
 '''
 rows, cols = choose_grid(len(symbolic_vars))

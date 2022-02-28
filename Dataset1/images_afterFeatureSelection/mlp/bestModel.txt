@@ -1,0 +1,1 @@
+Best results with lr_type=constant, learning rate=0.5 and 2500 max iter, with recall=0.918918918918919

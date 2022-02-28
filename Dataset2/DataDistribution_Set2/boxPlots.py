@@ -9,12 +9,13 @@ from matplotlib.pyplot import savefig, show
 
 
 register_matplotlib_converters()
-filename = '../data/air_quality_tabular.csv'
+filename = '../../data/air_quality_tabular.csv'
 data = pd.read_csv(filename, index_col='FID', na_values='', parse_dates=True, infer_datetime_format=True)
 
 
 data.boxplot(rot=45)
-savefig(f'../DataDistribution_Set2/images/global_boxplot.png')
+plt.tight_layout()
+savefig(f'../DataDistribution_Set2/images/global_boxplot.png', dpi=300)
 show()
 
 print(data.isna().sum() / (len(data)) * 100)  # Relative missing values
@@ -36,5 +37,7 @@ for n in range(len(numeric_data.columns.tolist())):
     axs[i, j].boxplot(data[numeric_data.columns.tolist()[n]].dropna().values, boxprops=boxprops)
 
     i, j = (i + 1, 0) if (n + 1) % cols == 0 else (i, j + 1)
-plt.savefig(f'../DataDistribution_Set2/images/single_boxplots.png')
+plt.tight_layout()
+
+plt.savefig(f'../DataDistribution_Set2/images/single_boxplots.png', dpi =300)
 plt.show()

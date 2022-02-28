@@ -1,0 +1,1 @@
+Best results achieved with entropy criteria, depth=2 and min_impurity_decrease=0.0100 ==> recall=0.91

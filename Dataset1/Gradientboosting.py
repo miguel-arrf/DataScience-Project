@@ -3,17 +3,17 @@ from matplotlib.pyplot import show, figure, savefig, subplots
 from numpy import argsort, std
 from pandas import unique
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.metrics import precision_score
+from sklearn.metrics import precision_score, recall_score
 
 from ds_charts import multiple_line_chart, HEIGHT, plot_evaluation_results, horizontal_bar_chart
 
 
 class GradientBoosting:
-    def __init__(self, trnX, trnY, tstY, tstX):
+    def __init__(self, trnX, trnY, tstY, tstX, imagePath):
         labels = unique(trnY)
         labels.sort()
 
-        n_estimators = [5, 10, 25, 50, 75, 100, 200, 300, 400]
+        n_estimators = [5, 10, 25, 50, 100, 250, 400]
         max_depths = [5, 10, 25]
         learning_rate = [.1, .5, .9]
         best = ('', 0, 0)
@@ -36,15 +36,15 @@ class GradientBoosting:
                     gb = GradientBoostingClassifier(n_estimators=n, max_depth=d, learning_rate=lr)
                     gb.fit(trnX, trnY)
                     prdY = gb.predict(tstX)
-                    yvalues.append(precision_score(tstY, prdY, pos_label="Killed"))
+                    yvalues.append(recall_score(tstY, prdY, pos_label="Killed"))
                     if yvalues[-1] > last_best:
                         best = (d, lr, n)
                         last_best = yvalues[-1]
                         best_model = gb
                 values[lr] = yvalues
             multiple_line_chart(n_estimators, values, ax=axs[0, k], title=f'Gradient Boorsting with max_depth={d}',
-                                xlabel='nr estimators', ylabel='precision', percentage=True)
-        savefig(f'images/gradient_boosting/gb_study.png')
+                                xlabel='nr estimators', ylabel='recall', percentage=True)
+        savefig(f'{imagePath}/gradient_boosting/gb_study.png', dpi=300)
         show()
 
 
@@ -58,8 +58,8 @@ class GradientBoosting:
         # Best model:
         prd_trn = best_model.predict(trnX)
         prd_tst = best_model.predict(tstX)
-        plot_evaluation_results(labels, trnY, prd_trn, tstY, prd_tst, extra="")
-        savefig(f'images/gradient_boosting/gb_best.png')
+        plot_evaluation_results(labels, trnY, prd_trn, tstY, prd_tst, extra="Gradient Boosting")
+        savefig(f'{imagePath}/gradient_boosting/gb_best.png', dpi=300)
         show()
 
 
@@ -73,10 +73,12 @@ class GradientBoosting:
             elems += [variables[indices[f]]]
             print(f'{f + 1}. feature {elems[f]} ({importances[indices[f]]})')
 
-        figure()
-        horizontal_bar_chart(elems, importances[indices], stdevs[indices],
+        figure(figsize=(1*4, 4))
+        horizontal_bar_chart(elems[0:5], importances[indices][0:5], stdevs[indices][0:5],
                              title='Gradient Boosting Features importance', xlabel='importance', ylabel='variables')
-        savefig(f'images/gradient_boosting/gb_ranking.png')
+        plt.tight_layout()
+        savefig(f'{imagePath}/gradient_boosting/gb_ranking.png', dpi=300)
+        show()
 
         # Overfitting
         def plot_overfitting_study(xvalues, prd_trn, prd_tst, name, xlabel, ylabel, extra=""):
@@ -84,7 +86,8 @@ class GradientBoosting:
             plt.figure()
             multiple_line_chart(xvalues, evals, ax=None, title=f'Overfitting {name}', xlabel=xlabel, ylabel=ylabel,
                                 percentage=True)
-            plt.savefig(f'images/gradient_boosting/overfitting_{extra}.png')
+            plt.tight_layout()
+            plt.savefig(f'{imagePath}/gradient_boosting/overfitting_{extra}.png', dpi=300)
 
         lr = best[1]
         max_depth = best[0]
@@ -95,17 +98,17 @@ class GradientBoosting:
             gb.fit(trnX, trnY)
             prd_tst_Y = gb.predict(tstX)
             prd_trn_Y = gb.predict(trnX)
-            y_tst_values.append(precision_score(tstY, prd_tst_Y, pos_label="Killed"))
-            y_trn_values.append(precision_score(trnY, prd_trn_Y, pos_label="Killed"))
+            y_tst_values.append(recall_score(tstY, prd_tst_Y, pos_label="Killed"))
+            y_trn_values.append(recall_score(trnY, prd_trn_Y, pos_label="Killed"))
         plot_overfitting_study(n_estimators, y_trn_values, y_tst_values, name=f'GB_depth={max_depth}_lr={lr}',
-                               xlabel='nr_estimators', ylabel="precision")
+                               xlabel='nr_estimators', ylabel="recall")
 
-        f = open(f"images/gradient_boosting/bestModel.txt", "w")
+        f = open(f"{imagePath}/gradient_boosting/bestModel.txt", "w")
         f.write('Best results with depth=%d, learning rate=%1.2f and %d estimators, with precision=%1.2f' % (
             best[0], best[1], best[2], last_best))
         f.close()
 
-        f = open(f"images/gradient_boosting/bestModel.txt", "w")
+        f = open(f"{imagePath}/gradient_boosting/bestModel.txt", "w")
         f.write('Best results with depth=%d, learning rate=%1.2f and %d estimators, with precision=%1.2f' % (
             best[0], best[1], best[2], last_best))
         f.close()

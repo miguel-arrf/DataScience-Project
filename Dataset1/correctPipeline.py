@@ -1,11 +1,15 @@
 import numpy as np
 import pandas as pd
 import xlrd
+import argparse
+
 from imblearn.over_sampling import SMOTE
+from matplotlib import pyplot as plt
 from matplotlib.pyplot import show, savefig
 from numpy import nan, unique
 from pandas import DataFrame, concat
 from pandas import read_csv
+from sklearn import metrics
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import precision_score, recall_score
 from sklearn.model_selection import train_test_split
@@ -13,6 +17,7 @@ from sklearn.naive_bayes import GaussianNB, BernoulliNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import *
 
+from Dataset1.DataGranularity_Set1.timeHierarchy_function_apply_set1 import apply_set1_taxonomy
 from Dataset1.DecisionTrees import DecisionTrees
 from Dataset1.Gradientboosting import GradientBoosting
 from Dataset1.MLP import MLP
@@ -21,7 +26,7 @@ from Dataset1.NaiveBayes import NaiveBayes
 from Dataset1.KNN import KNN
 from Dataset1.RandomForests import RandomForests
 
-from ds_charts import get_variable_types, plot_evaluation_results
+from ds_charts import get_variable_types, HEIGHT, multiple_bar_chart, plot_confusion_matrix, plot_evaluation_results
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -52,8 +57,8 @@ class Pipeline:
         self.dataset.drop(["COLLISION_ID"], axis=1, inplace=True)
         self.dataset.drop(["PERSON_ID"], axis=1, inplace=True)
         self.dataset.drop(["VEHICLE_ID"], axis=1, inplace=True)
-        self.dataset.drop(["CRASH_TIME"], axis=1, inplace=True)
-        self.dataset.drop(["CRASH_DATE"], axis=1, inplace=True)
+        # self.dataset.drop(["CRASH_TIME"], axis=1, inplace=True)
+        # self.dataset.drop(["CRASH_DATE"], axis=1, inplace=True)
 
         self.bodilyInjuryEncoder = None
         self.safetyEquipmentEncoder = None
@@ -78,22 +83,29 @@ class Pipeline:
             aux = ""
             time = int(str(v).split(":")[0])
             if 0 <= time <= 6:
-                aux = "DAWN"
+                aux = 0  # "DAWN"
             if 7 <= time <= 11:
-                aux = "MORNING"
+                aux = 1  # "MORNING"
             if 12 <= time <= 13:
-                aux = "LUNCH TIME"
+                aux = 2  # "LUNCH TIME"
             if 14 <= time <= 18:
-                aux = "AFTERNOON"
+                aux = 3  # "AFTERNOON"
             if 19 <= time <= 20:
-                aux = "DINNER TIME"
+                aux = 4  # "DINNER TIME"
             if 21 <= time <= 23:
-                aux = "NIGHT"
+                aux = 5  # "NIGHT"
             v = aux
             return v
 
         # self.dataset['CRASH_TIME'] = self.dataset['CRASH_TIME'].apply(
         #    lambda x: transform_time(x))
+
+        apply_set1_taxonomy(self.dataset)
+
+        self.dataset = dummify(self.dataset, ['CRASH_TIME'])
+        self.dataset = dummify(self.dataset, ['CRASH_DATE'])
+
+        print(self.dataset.columns)
 
     def groupSafetyEquipment(self):
         def transform_safetyEquipment(v):
@@ -120,6 +132,9 @@ class Pipeline:
 
     def customMissingValuesImputation(self):
         dataset = self.dataset.copy()
+
+        print("null:")
+        # print(dataset[dataset.isna().any(axis=1)])
 
         imputation_function_apply_set1.apply_set1_imputation(dataset)
         dataset = dataset[dataset['PERSON_AGE'].notna()]
@@ -476,7 +491,22 @@ def getOverSampling(dataset):
     return df_over
 
 
-def trainKNN(trainX, testX, trainY, testY, model):
+def plot_evaluation_results_custom(labels, trn_y, prd_trn, tst_y, prd_tst, extra):
+    cnf_mtx_trn = metrics.confusion_matrix(trn_y, prd_trn)
+    tn_trn, fp_trn, fn_trn, tp_trn = cnf_mtx_trn.ravel()
+    cnf_mtx_tst = metrics.confusion_matrix(tst_y, prd_tst)
+    tn_tst, fp_tst, fn_tst, tp_tst = cnf_mtx_tst.ravel()
+
+    evaluation = {
+        'Recall': [tp_tst / (tp_tst + fn_tst)],
+        'Precision': [tp_tst / (tp_tst + fp_tst)]}
+
+    fig, axs = plt.subplots(1, 1, figsize=(0.4 * HEIGHT, 0.4 * HEIGHT), dpi=450)
+    multiple_bar_chart(['Test'], evaluation, ax=axs, title="",
+                       percentage=True)
+
+
+def trainKNN(trainX, testX, trainY, testY, model, to_save=True):
     estimators = {'KNN': KNeighborsClassifier(n_neighbors=5, metric='euclidean')}
 
     labels = unique(trainY)
@@ -487,8 +517,10 @@ def trainKNN(trainX, testX, trainY, testY, model):
 
         prd_trn = estimators[clf].predict(trainX)
         prd_tst = estimators[clf].predict(testX)
-        plot_evaluation_results(labels, trainY, prd_trn, testY, prd_tst, extra=f"for {clf}-{model}")
-        savefig(f"results/{clf}-{model}.png")
+        plot_evaluation_results(labels, trainY, prd_trn, testY, prd_tst, extra=f"{model}")
+        plt.tight_layout()
+        if to_save:
+            savefig(f"results/{clf}-{model}.png")
         show()
         print("\t\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Killed"))
         print("\t\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Killed"))
@@ -497,7 +529,7 @@ def trainKNN(trainX, testX, trainY, testY, model):
         return precision_score(testY, prd_tst, pos_label="Killed"), recall_score(testY, prd_tst, pos_label="Killed")
 
 
-def trainNaiveBayes(trainX, testX, trainY, testY, model):
+def trainNaiveBayes(trainX, testX, trainY, testY, model, to_save=True):
     estimators = {'GaussianNB': GaussianNB()}
 
     labels = unique(trainY)
@@ -508,8 +540,10 @@ def trainNaiveBayes(trainX, testX, trainY, testY, model):
 
         prd_trn = estimators[clf].predict(trainX)
         prd_tst = estimators[clf].predict(testX)
-        plot_evaluation_results(labels, trainY, prd_trn, testY, prd_tst, extra=f"for {clf}-{model}")
-        savefig(f"results/{clf}-{model}.png")
+        plot_evaluation_results(labels, trainY, prd_trn, testY, prd_tst, extra=f"{model}")
+        plt.tight_layout()
+        if to_save:
+            savefig(f"results/{clf}-{model}.png")
         show()
         print("\t\tprecision value for {}: ".format(clf), precision_score(testY, prd_tst, pos_label="Killed"))
         print("\t\trecall value for {}: ".format(clf), recall_score(testY, prd_tst, pos_label="Killed"))
@@ -564,17 +598,19 @@ def selectEverything(dataset, threshold):
 
 def drop_variance(originalDataset, threshold):
     dataset = originalDataset.copy()
+    print("Features: ", dataset.columns)
     injury = dataset["PERSON_INJURY"]
     dataset = dataset.drop(["PERSON_INJURY"], axis=1)
     dataset = dataset.apply(pd.to_numeric)
 
-    numeric = get_variable_types(dataset)['Numeric']
-    dataset = dataset[numeric]
+    # numeric = get_variable_types(dataset)['Numeric']
+    # dataset = dataset[numeric]
 
     lst_variables = []
     lst_variances = []
     for el in dataset.columns:
         value = dataset[el].var()
+        print(el, ": ", value)
         if value >= threshold:
             lst_variables.append(el)
             lst_variances.append(value)
@@ -630,13 +666,25 @@ def select_redundant(originalDataset, threshold):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-before", help="is before selection?")
+    args = parser.parse_args()
+
+    print("isBefore: ", args.before)
+
+    if args.before == "True":
+        beforeFeatureSelection = True
+    else:
+        beforeFeatureSelection = False
+
+
     pipeline = Pipeline()
     print("Initial pipeline shape: ", pipeline.dataset.shape)
 
     pipeline.removeIncorrectValues()
 
     # pipeline.groupSafetyEquipment()
-    # pipeline.groupTime()
+    pipeline.groupTime()
 
     pipeline.dataset = pipeline.dataset.drop(["EMOTIONAL_STATUS"], axis=1)
 
@@ -644,16 +692,16 @@ if __name__ == '__main__':
     datasetReplaceMVByConstant = pipeline.replaceMissingValuesImputationWithConstant()
     datasetReplaceMVByMostCommon = pipeline.replaceMissingValuesImputationWithMostCommon()
 
-    select_redundant(scaleStandardScaler(encode(datasetCustomImputation)), 0.7).to_csv("teste_to_use.csv")
-    scaleStandardScaler(dummifyDataset(datasetCustomImputation)).to_csv("teste_to_use_encoded.csv")
+    # select_redundant(scaleStandardScaler(encode(datasetCustomImputation)), 0.7).to_csv("teste_to_use.csv")
+    # scaleStandardScaler(dummifyDataset(datasetCustomImputation)).to_csv("teste_to_use_encoded.csv")
 
     print("saved")
     results = []
     models = []
     for mv in [
-        (datasetCustomImputation, "customImputation"),
+        (datasetCustomImputation, ""),
         #(datasetReplaceMVByMostCommon, "ReplaceMVByMostCommon"),
-        #(datasetReplaceMVByConstant, "ReplaceMVByConstant")
+        # (datasetReplaceMVByConstant, "ReplaceMVByConstant")
     ]:
 
         print("____________")
@@ -661,42 +709,53 @@ if __name__ == '__main__':
         print()
 
         for dummyMethod in [
-            (encode, "ordinalEncoding"),
+            (encode, ""),
             #(dummifyDataset, "oneHot"),
         ]:
             print("\tEncoding method: ", dummyMethod[1])
 
             for scalingMethod in [
-                (scaleStandardScaler, "z-score"),
-                #(scaleMinMaxScaler, "minMax"),
+                (scaleStandardScaler, ""),
+                # (scaleMinMaxScaler, "minMax"),
                 #(balanceNothing, "")
             ]:
                 print("\tScaling method: ", scalingMethod[1])
 
                 for balancingMethod in [
-                                       (getBestUnderstampling, "bestUnderSampling"),
-                                         #(getUndersampling, "UnderSampling"),
-                                         #(getSmote, "Smote"),
-                                         #(getOverSampling, "OverSampling"),
-                                       # (balanceNothing, "")
-                                        ]:
+                    (getBestUnderstampling, ""),
+                    # (getUndersampling, "UnderSampling"),
+                    #(getSmote, "Smote"),
+                    #(getOverSampling, "OverSampling"),
+                    #(balanceNothing, "")
+                ]:
 
                     print("\tBalancing method: ", balancingMethod[1])
-                    for selectionFeatures in [
-                        #(selectEverything, "", "-"),
-                        #(select_redundant, "RedundantFeatures", 0.9),
-                        (select_redundant, "RedundantFeatures", 0.7),
-                        #(drop_variance, "selectVariance", 0.9),
-                        #(balanceNothing, "noSelection", "")
-                    ]:
-                        print("\tfeatureSelection: ", selectionFeatures[1])
+
+                    selectionList = []
+                    if beforeFeatureSelection:
+                        selectionList.append((selectEverything, "", ""))
+                    else:
+                        selectionList.append((select_redundant, "RedundantFeatures", 0.7))
+
+                    for selectionFeatures in selectionList:
+                    #         [
+                    #     (select_redundant, "RedundantFeatures", 0.7),
+                    #     #(selectEverything, "", ""),
+                    #      #(select_redundant, "RedundantFeatures", 0.9),
+                    #      (drop_variance, "selectVariance", 0.9),
+                    #      #(balanceNothing, "noSelection", "")
+                    # ]:
+
+
+                        print("\tfeatureSelection: ", selectionFeatures[1], ", ", selectionFeatures[2])
 
                         mvDataset = mv[0].copy()
                         dummified = dummyMethod[0](mvDataset)
                         dummified = scalingMethod[0](dummified)
                         dummified = selectionFeatures[0](dummified, selectionFeatures[2])
-
+                        print("\tshape: ", dummified.shape)
                         print("")
+                        print("columns: ", dummified.columns)
 
                         if "PERSON_SEX" in dummified.columns:
                             dummified["PERSON_SEX"].replace(('F', 'M'), (1, 0), inplace=True)
@@ -708,64 +767,70 @@ if __name__ == '__main__':
                         y_train = temp["PERSON_INJURY"]
                         X_train = temp.drop(["PERSON_INJURY"], axis=1)
 
-                        randomForests = RandomForests(trnX=X_train,
-                                                      trnY=y_train,
-                                                      tstX=X_test,
-                                                      tstY=y_test)
-                        # Classification section:
-                        '''
-                        naiveBayes = NaiveBayes( trnX=X_train,
-                                                trnY=y_train,
-                                                tstX=X_test,
-                                                tstY=y_test)
-                        
-                        
-                        knn = KNN(trnX=X_train,
-                                  trnY=y_train,
-                                  tstX=X_test,
-                                  tstY=y_test)
-                        
+                        all_models = True
+                        naive = True
+                        knn = True
 
-                        decisionTrees = DecisionTrees(trnX=X_train,
-                                                      trnY=y_train,
-                                                      tstX=X_test,
-                                                      tstY=y_test)
-                        randomForests = RandomForests(trnX=X_train,
-                                                      trnY=y_train,
-                                                      tstX=X_test,
-                                                      tstY=y_test)
-                        
-                        mlp = MLP(trnX=X_train,
-                                  trnY=y_train,
-                                  tstX=X_test,
-                                  tstY=y_test)
+                        imagePath = ""
+                        if beforeFeatureSelection:
+                            imagePath = "images_beforeFeatureSelection"
+                        else:
+                            imagePath = "images_afterFeatureSelection"
 
-                        gradientBoosting = GradientBoosting(trnX=X_train,
-                                  trnY=y_train,
-                                  tstX=X_test,
-                                  tstY=y_test)
-                        
+                        print("-------> PATH: ", imagePath)
 
+                        if all_models:
+                            # randomForests = RandomForests(trnX=X_train,
+                            #                               trnY=y_train,
+                            #                               tstX=X_test,
+                            #                               tstY=y_test, imagePath=imagePath)
+                            # print("-------- RANDOM FORESTS --------")
+                            # naiveBayes = NaiveBayes(trnX=X_train,
+                            #                         trnY=y_train,
+                            #                         tstX=X_test,
+                            #                         tstY=y_test, imagePath=imagePath)
+                            #
+                            # print("-------- NAIVE BAYES DONE --------")
+                            # knn = KNN(trnX=X_train,
+                            #           trnY=y_train,
+                            #           tstX=X_test,
+                            #           tstY=y_test, imagePath=imagePath)
+                            # print("-------- KNN DONE --------")
+                            decisionTrees = DecisionTrees(trnX=X_train,
+                                                          trnY=y_train,
+                                                          tstX=X_test,
+                                                          tstY=y_test, imagePath=imagePath)
+                            print("-------- DECISION TREES DONE --------")
+                            # mlp = MLP(trnX=X_train,
+                            #           trnY=y_train,
+                            #           tstX=X_test,
+                            #           tstY=y_test, imagePath=imagePath)
+                            # print("-------- MLP DONE --------")
+                            # gradientBoosting = GradientBoosting(trnX=X_train,
+                            #                                     trnY=y_train,
+                            #                                     tstX=X_test,
+                            #                                     tstY=y_test, imagePath=imagePath)
+                            # print("-------- GRADIENT BOOSTING DONE --------")
+                        if not all_models:
+                            # Methods evaluation:
+                            dicionary = {}
 
+                            if naive:
 
-                        # Methods evaluation:
-                        dicionary = {}
+                                prNB, recallNB = trainNaiveBayes(X_train, X_test, y_train, y_test,
+                                                                 model=f"{dummyMethod[1]}-{mv[1]}-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}")
+                                dicionary[
+                                    f"{mv[1]}-{dummyMethod[1]}-naiveBayes-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}"] = "precision:{:.2f} <-> recall:{:.2f}".format(
+                                    prNB, recallNB)
 
-                        prNB, recallNB = trainNaiveBayes(X_train, X_test, y_train, y_test,
-                                                         model=f"{dummyMethod[1]}-{mv[1]}-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}")
-                        dicionary[
-                            f"{mv[1]}-{dummyMethod[1]}-naiveBayes-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}"] = "precision:{:.2f} <-> recall:{:.2f}".format(
-                            prNB, recallNB)
+                            if knn:
+                                prKNN, recallKNN = trainKNN(X_train, X_test, y_train, y_test,
+                                                            model=f"{dummyMethod[1]}-{mv[1]}-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}")
+                                dicionary[
+                                    f"{mv[1]}-{dummyMethod[1]}-KNN-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}"] = "precision:{:.2f} <-> recall:{:.2f} ".format(
+                                    prKNN, recallKNN)
 
-                        prKNN, recallKNN = trainKNN(X_train, X_test, y_train, y_test,
-                                                    model=f"{dummyMethod[1]}-{mv[1]}-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}")
-                        dicionary[
-                            f"{mv[1]}-{dummyMethod[1]}-KNN-{scalingMethod[1]}-{balancingMethod[1]}-{selectionFeatures[1]}-{selectionFeatures[2]}"] = "precision:{:.2f} <-> recall:{:.2f} ".format(
-                            prKNN, recallKNN)
-
-                        results.append(dicionary)
-                        '''
-
+                            results.append(dicionary)
 
     print("Results:")
     for result in results:
@@ -773,4 +838,3 @@ if __name__ == '__main__':
             print(key, " ", value)
 
         print()
-

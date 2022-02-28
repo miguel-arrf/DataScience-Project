@@ -1,0 +1,1 @@
+Best results with depth=5, learning rate=0.10 and 10 estimators, with precision=0.81

@@ -1,10 +1,11 @@
+import matplotlib.pyplot as plt
 from pandas import read_csv
 from ds_charts import get_variable_types, choose_grid, HEIGHT
 from matplotlib.pyplot import subplots, savefig, show
 import os
 
 currentPath = "/".join(os.path.abspath(__file__).split("/")[:-1]) 
-filename =  currentPath + '/../data/air_quality_tabular.csv'
+filename =   '../../data/air_quality_tabular.csv'
 data = read_csv(filename)
 
 values = {'nr records': data.shape[0], 'nr variables': data.shape[1]}
@@ -25,5 +26,6 @@ for n in range(len(variables)):
     i, j = (i + 1, 0) if (n+1) % cols == 0 else (i, j + 1)
 
 
-savefig(currentPath + '/images/granularity_single.png')
+plt.tight_layout()
+savefig(currentPath + '/images/granularity_single.png', dpi=150)
 show()

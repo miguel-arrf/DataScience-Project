@@ -29,14 +29,14 @@ def compute_mae(X, labels_in, centroids):
     return partial / (n_in - 1)
 
 
-def compute_mse(X, labels, centroids):
-    n_in = len(X)
-    centroid_per_record = [centroids[labels[a]] for a in range(n_in)]
+def compute_mse(X, labels: list, centroids: list) -> float:
+    n = len(X)
+    centroid_per_record = [centroids[labels[i]] for i in range(n)]
     partial = X - centroid_per_record
     partial = list(partial * partial)
     partial = [sum(el) for el in partial]
     partial = sum(partial)
-    return (partial) / (n_in - 1)
+    return partial / (n-1)
 
 
 def compute_rmse(X, labels, centroids):

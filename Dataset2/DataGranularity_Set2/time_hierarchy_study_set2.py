@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from pandas import read_csv
 from ds_charts import get_variable_types, choose_grid, HEIGHT
 from matplotlib.pyplot import subplots, savefig, show
@@ -57,5 +58,6 @@ for i in range(rows):
         axs[i, j].set_xlabel(variables[i])
         axs[i, j].set_ylabel('Nr records')
         axs[i, j].hist(data[variables[i]].values, bins=bins[j])
-savefig('../DataGranularity_Set2/images/time_hierarchy_study.png')
+plt.tight_layout()
+savefig('../DataGranularity_Set2/images/time_hierarchy_study.png', dpi=300)
 show()

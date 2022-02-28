@@ -1,0 +1,1 @@
+Best results with 19 neighbors and euclidean

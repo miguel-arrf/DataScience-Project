@@ -8,13 +8,14 @@ from ds_charts import multiple_line_chart, horizontal_bar_chart, plot_evaluation
 
 
 class RandomForests:
-    def __init__(self, trnX, trnY, tstY, tstX):
+    def __init__(self, trnX, trnY, tstY, tstX, imagePath):
         labels = unique(trnY)
         labels.sort()
-
-        n_estimators = [5, 10, 25, 50, 100, 400, 1000]
+#
+        n_estimators = [5, 10, 15, 50, 150, 250]#, 500, 1000]
         max_depths = [5, 10, 25]
         max_features = [.3, .5, .7, 1]
+
         best = ('', 0, 0)
         last_best = 0
         best_model = None
@@ -41,21 +42,23 @@ class RandomForests:
                         best_model = rf
 
                 values[f] = yvalues
+
+            # axs[0, k].set_ylim([0, 0.6])
             multiple_line_chart(n_estimators, values, ax=axs[0, k], title=f'Random Forests with max_depth={d}',
-                                xlabel='nr estimators', ylabel='precision', percentage=True)
-        savefig(f'images/random_forests/rf_study.png')
+                                xlabel='nr estimators', ylabel='precision %', percentage=True)
+        savefig(f'{imagePath}/random_forests/rf_study.png', dpi=300)
         show()
         print('Best results with depth=%d, %1.2f features and %d estimators, with precision=%1.2f' % (
             best[0], best[1], best[2], last_best))
 
-        #best = (25, 0.70, 100)
-        #best_model = RandomForestClassifier(n_estimators=best[2], max_depth=best[0], max_features=best[1])
-        #best_model.fit(trnX, trnY)
+        # best = (25, 0.70, 100)
+        # best_model = RandomForestClassifier(n_estimators=best[2], max_depth=best[0], max_features=best[1])
+        # best_model.fit(trnX, trnY)
 
         prd_trn = best_model.predict(trnX)
         prd_tst = best_model.predict(tstX)
-        plot_evaluation_results(labels, trnY, prd_trn, tstY, prd_tst, extra="")
-        savefig(f'images/random_forests/rf_best.png')
+        plot_evaluation_results(labels, trnY, prd_trn, tstY, prd_tst, extra="Random Forest")
+        savefig(f'{imagePath}/random_forests/rf_best.png', dpi=300)
         show()
 
         from numpy import std, argsort
@@ -69,10 +72,13 @@ class RandomForests:
             elems += [variables[indices[f]]]
             print(f'{f + 1}. feature {elems[f]} ({importances[indices[f]]})')
 
-        figure()
-        horizontal_bar_chart(elems, importances[indices], stdevs[indices], title='Random Forest Features importance',
+        figure(figsize=(1 * 4, 4))
+        horizontal_bar_chart(elems[0:5], importances[indices][0:5], stdevs[indices][0:5],
+                             title='Random Forest Features importance',
                              xlabel='importance', ylabel='variables')
-        savefig(f'images/random_forests/rf_ranking.png')
+        plt.tight_layout()
+        savefig(f'{imagePath}/random_forests/rf_ranking.png', dpi=300)
+        show()
 
         # Overfitting
         def plot_overfitting_study(xvalues, prd_trn, prd_tst, name, xlabel, ylabel, extra=""):
@@ -80,7 +86,8 @@ class RandomForests:
             plt.figure()
             multiple_line_chart(xvalues, evals, ax=None, title=f'Overfitting {name}', xlabel=xlabel, ylabel=ylabel,
                                 percentage=True)
-            plt.savefig(f'images/random_forests/overfitting_{extra}.png')
+            plt.tight_layout()
+            plt.savefig(f'{imagePath}/random_forests/overfitting_{extra}.png', dpi=300)
 
         print("overfitting")
         f = best[1]
@@ -98,8 +105,8 @@ class RandomForests:
         plot_overfitting_study(n_estimators, y_trn_values, y_tst_values, name=f'RF_depth={max_depth}_vars={f}',
                                xlabel='nr_estimators', ylabel="precision")
 
-        f = open(f"images/random_forests/bestModel.txt", "w")
+        f = open(f"{imagePath}/random_forests/bestModel.txt", "w")
         f.write(
-            'Best results achieved with %s criteria, depth=%d and min_impurity_decrease=%1.2f ==> precision=%1.2f' % (
+            'Best results with depth=%d, %1.2f features and %d estimators ==> precision=%1.2f' % (
                 best[0], best[1], best[2], last_best))
         f.close()

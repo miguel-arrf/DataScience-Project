@@ -13,18 +13,20 @@ register_matplotlib_converters()
 
 currentPath = "/".join(os.path.abspath(__file__).split("/")[:-1])
 #filename =  currentPath + '/../Dataset1/data/encoded_notScaled.csv'
-filename =   '../../data/NYC_collisions_tabular.csv'
-
+#filename =   '../../data/NYC_collisions_tabular.csv'
+filename = "../teste_to_use.csv"
 
 data = pd.read_csv(filename, index_col="UNIQUE_ID", na_values='', parse_dates=True, infer_datetime_format=True)
-data = data.drop(["VEHICLE_ID", "COLLISION_ID"], axis=1)
-data = data.loc[(data['PERSON_AGE'] < 140) & (data['PERSON_AGE'] >= 0)]
+#data = data.drop(["VEHICLE_ID", "COLLISION_ID"], axis=1)
+#data = data.loc[(data['PERSON_AGE'] < 140) & (data['PERSON_AGE'] >= 0)]
 
 with open("charts/description.txt", "w", encoding = 'utf-8') as f:
     f.write(str(data.describe()))
 
+plt.figure(figsize=(10, 5))
 data.boxplot(rot=45)
-savefig(currentPath + "/images/global_boxplot.png")
+plt.tight_layout()
+savefig(currentPath + "/images/global_boxplot.png", dpi=300)
 show()
 
 print(data.isna().sum() / (len(data)) * 100)  # Relative missing values

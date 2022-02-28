@@ -1,17 +1,20 @@
-from pandas import DataFrame, read_csv
+from matplotlib import pyplot as plt
+from pandas import DataFrame, read_csv, concat
 from matplotlib.pyplot import figure, show, subplots, savefig
-from ds_charts import plot_line, multiple_line_chart, get_variable_types
+from sklearn.preprocessing import KBinsDiscretizer
+
+from ds_charts import plot_line, multiple_line_chart, get_variable_types, dummify
 from mlxtend.frequent_patterns import apriori, association_rules
 
-data = read_csv('../../set2_default_dummy.csv')
+data = read_csv('../../data/set2_equal_width.csv').sample(frac=0.05)
 
-data.pop('Unnamed: 0')
+data = dummify(data, data.columns)
+print("data: ", data.shape)
+print("columns: ", data.columns)
 
-data = data.sample(2050)
-
-MIN_SUP: float = 0.01
-var_min_sup = [0.001, 0.01, 0.02, 0.05]
-
+MIN_SUP: float = 0.2
+var_min_sup = [0.5, 0.45, 0.40, 0.35, 0.30]
+print(var_min_sup)
 
 patterns: DataFrame = apriori(data, min_support=MIN_SUP, use_colnames=True, verbose=True)
 
@@ -20,12 +23,12 @@ nr_patterns = []
 for sup in var_min_sup:
     pat = patterns[patterns['support'] >= sup]
     nr_patterns.append(len(pat))
-
 print(nr_patterns)
 
 figure(figsize=(6, 4))
 plot_line(var_min_sup, nr_patterns, title='Nr Patterns x Support', xlabel='support', ylabel='Nr Patterns')
-savefig("images/default/nr_patterns_support.png")
+plt.tight_layout()
+savefig("images/default/nr_patterns_support.png", dpi=300)
 show()
 
 MIN_CONF: float = 0.05
@@ -48,7 +51,8 @@ def plot_top_rules(rules: DataFrame, metric: str, per_metric: str) -> None:
         text += f"{rule['antecedents']} ==> {rule['consequents']}"
         text += f"(s: {rule['support']:.2f}, c: {rule['confidence']:.2f}, lift: {rule['lift']:.2f})\n"
     ax.text(0, 0, text)
-    savefig(f'images/default/TOP_10_per_Min{per_metric}-{metric}.png')
+    plt.tight_layout()
+    savefig(f'images/default/TOP_10_per_Min{per_metric}-{metric}.png', dpi=300)
     show()
 
 
@@ -82,7 +86,8 @@ def analyse_per_metric(rules: DataFrame, metric: str, metric_values: list) -> li
                         xlabel=metric, ylabel='Avg confidence')
     multiple_line_chart(metric_values, lift, ax=axs[0, 1], title=f'Avg Lift x {metric}',
                         xlabel=metric, ylabel='Avg lift')
-    savefig(f"images/default/{metric}_1.png")
+    plt.tight_layout()
+    savefig(f"images/default/{metric}_1.png", dpi=300)
     show()
 
     plot_top_rules(top_conf, 'confidence', metric)
@@ -96,10 +101,12 @@ def analyse_per_metric(rules: DataFrame, metric: str, metric_values: list) -> li
 
 nr_rules_sp = analyse_per_metric(rules, 'support', var_min_sup)
 plot_line(var_min_sup, nr_rules_sp, title='Nr rules x Support', xlabel='support', ylabel='Nr. rules', percentage=False)
-savefig(f"images/default/Nr_rules_Support.png")
+plt.tight_layout()
+savefig(f"images/default/Nr_rules_Support.png", dpi=300)
 
 var_min_conf = [i * MIN_CONF for i in range(10, 5, -1)]
 nr_rules_cf = analyse_per_metric(rules, 'confidence', var_min_conf)
 plot_line(var_min_conf, nr_rules_cf, title='Nr Rules x Confidence', xlabel='confidence', ylabel='Nr Rules',
           percentage=False)
-savefig(f"images/default/Nr_rules_confidence.png")
+plt.tight_layout()
+savefig(f"images/default/Nr_rules_confidence.png", dpi=300)

@@ -12,7 +12,6 @@ from sklearn.tree import export_graphviz
 import matplotlib.font_manager as fm
 from sklearn.preprocessing import OneHotEncoder
 
-
 FONT_TEXT = fm.FontProperties(size=6)
 TEXT_MARGIN = 0.05
 
@@ -32,7 +31,8 @@ def choose_grid(nr):
         return (nr // NR_COLUMNS, NR_COLUMNS) if nr % NR_COLUMNS == 0 else (nr // NR_COLUMNS + 1, NR_COLUMNS)
 
 
-def set_elements(ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel: str = '', percentage: bool = False, extraPercentage = None, minExtraPercentage = None):
+def set_elements(ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel: str = '', percentage: bool = False,
+                 yLimit=None):
     if ax is None:
         ax = plt.gca()
     ax.set_title(title)
@@ -40,16 +40,12 @@ def set_elements(ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel:
     ax.set_ylabel(ylabel)
     if percentage:
         ax.set_ylim(0.0, 1.0)
-    else:
-        if extraPercentage is not None:
-            if minExtraPercentage is not None:
-                ax.set_ylim(minExtraPercentage, extraPercentage)
-            else:
-                ax.set_ylim(0.0, extraPercentage)
+    if yLimit is not None:
+        ax.set_ylim(yLimit)
     return ax
 
 
-def set_locators(xvalues: list, ax: plt.Axes = None, rotation: bool=False):
+def set_locators(xvalues: list, ax: plt.Axes = None, rotation: bool = False):
     if isinstance(xvalues[0], datetime):
         locator = AutoDateLocator()
         ax.xaxis.set_major_locator(locator)
@@ -69,22 +65,21 @@ def set_locators(xvalues: list, ax: plt.Axes = None, rotation: bool=False):
 
 
 def plot_line(xvalues: list, yvalues: list, ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel: str = '',
-              percentage: bool = False, rotation: bool = False):
-    ax = set_elements(ax=ax, title=title, xlabel=xlabel, ylabel=ylabel, percentage=percentage)
+              percentage: bool = False, rotation: bool = False, yLimit=None):
+    ax = set_elements(ax=ax, title=title, xlabel=xlabel, ylabel=ylabel, percentage=percentage, yLimit=yLimit)
     set_locators(xvalues, ax=ax, rotation=rotation)
     ax.plot(xvalues, yvalues, c=cfg.LINE_COLOR)
 
 
 def multiple_line_chart(xvalues: list, yvalues: dict, ax: plt.Axes = None, title: str = '', xlabel: str = '',
-                        ylabel: str = '', percentage: bool = False, rotation: bool = False, extraPercentage = 1.0, minExtraPercentage = 0.0):
-    ax = set_elements(ax=ax, title=title, xlabel=xlabel, ylabel=ylabel, percentage=percentage, extraPercentage= extraPercentage, minExtraPercentage = minExtraPercentage)
+                        ylabel: str = '', percentage: bool = False, rotation: bool = False):
+    ax = set_elements(ax=ax, title=title, xlabel=xlabel, ylabel=ylabel, percentage=percentage)
     set_locators(xvalues, ax=ax, rotation=rotation)
     legend: list = []
     for name, y in yvalues.items():
         ax.plot(xvalues, y)
         legend.append(name)
     ax.legend(legend)
-    plt.tight_layout()
 
 
 def bar_chart(xvalues: list, yvalues: list, ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel: str = '',
@@ -94,24 +89,23 @@ def bar_chart(xvalues: list, yvalues: list, ax: plt.Axes = None, title: str = ''
     ax.bar(xvalues, yvalues, edgecolor=cfg.LINE_COLOR, color=cfg.FILL_COLOR, tick_label=xvalues)
     for i in range(len(yvalues)):
         ax.text(i, yvalues[i] + TEXT_MARGIN, f'{yvalues[i]:.2f}', ha='center', fontproperties=FONT_TEXT)
-    plt.tight_layout()
 
 
-def multiple_bar_chart(xvalues: list, yvalues: dict, ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel: str = '',
+def multiple_bar_chart(xvalues: list, yvalues: dict, ax: plt.Axes = None, title: str = '', xlabel: str = '',
+                       ylabel: str = '',
                        percentage: bool = False):
     ax = set_elements(ax=ax, title=title, xlabel=xlabel, ylabel=ylabel, percentage=percentage)
     ngroups = len(xvalues)
     nseries = len(yvalues)
     pos_group = arange(ngroups)
     width = 0.8 / nseries
-    pos_center = pos_group + (nseries-1)*width/2
+    pos_center = pos_group + (nseries - 1) * width / 2
     ax.set_xticks(pos_center)
     ax.set_xticklabels(xvalues)
     i = 0
     legend = []
     for metric in yvalues:
         ax.bar(pos_group, yvalues[metric], width=width, edgecolor=cfg.LINE_COLOR, color=cfg.ACTIVE_COLORS[i])
-
         values = yvalues[metric]
         legend.append(metric)
         for k in range(len(values)):
@@ -134,13 +128,13 @@ def plot_evaluation_results(labels: ndarray, trn_y, prd_trn, tst_y, prd_tst, ext
                   'Precision': [tp_trn / (tp_trn + fp_trn), tp_tst / (tp_tst + fp_tst)]}
 
     fig, axs = plt.subplots(1, 2, figsize=(2 * HEIGHT, HEIGHT))
-    multiple_bar_chart(['Train', 'Test'], evaluation, ax=axs[0], title=f"Train and Test sets - {extra}",
+    multiple_bar_chart(['Train', 'Test'], evaluation, ax=axs[0], title=f"Train and Test sets {extra}",
                        percentage=True)
-    plot_confusion_matrix(cnf_mtx_tst, labels, ax=axs[1], title=f'Test - {extra}')
-    plt.tight_layout()
+    plot_confusion_matrix(cnf_mtx_tst, labels, ax=axs[1], title='Test')
 
 
-def horizontal_bar_chart(elements: list, values: list, error: list, ax: plt.Axes = None, title: str = '', xlabel: str = '', ylabel: str = ''):
+def horizontal_bar_chart(elements: list, values: list, error: list, ax: plt.Axes = None, title: str = '',
+                         xlabel: str = '', ylabel: str = ''):
     ax = set_elements(ax=ax, title=title, xlabel=xlabel, ylabel=ylabel)
     y_pos = arange(len(elements))
 
@@ -150,7 +144,8 @@ def horizontal_bar_chart(elements: list, values: list, error: list, ax: plt.Axes
     ax.invert_yaxis()  # labels read top-to-bottom
 
 
-def plot_confusion_matrix(cnf_matrix: ndarray, classes_names: ndarray, ax: plt.Axes = None, normalize: bool = False, title=''):
+def plot_confusion_matrix(cnf_matrix: ndarray, classes_names: ndarray, ax: plt.Axes = None, normalize: bool = False,
+                          title=''):
     if ax is None:
         ax = plt.gca()
     if normalize:
@@ -182,24 +177,24 @@ def plot_roc_chart(models: dict, tstX: ndarray, tstY: ndarray, ax: plt.Axes = No
     ax.set_ylim(0.0, 1.0)
     set_elements(ax=ax, title=f'ROC chart for {target}', xlabel='FP rate', ylabel='TP rate')
 
-    ax.plot([0, 1], [0, 1], color='navy', label='random', linewidth=1, linestyle='--',  marker='')
+    ax.plot([0, 1], [0, 1], color='navy', label='random', linewidth=1, linestyle='--', marker='')
     for clf in models.keys():
         metrics.plot_roc_curve(models[clf], tstX, tstY, ax=ax, marker='', linewidth=1)
     ax.legend(loc="lower right")
 
 
 def plot_tree(tree, variables: list, labels: list, out_filename: str):
-    export_graphviz(tree, out_file=out_filename+'.dot', feature_names=variables, class_names=labels,
+    export_graphviz(tree, out_file=out_filename + '.dot', feature_names=variables, class_names=labels,
                     filled=True, rounded=True, special_characters=True)
     # Convert to png
     from subprocess import call
-    call(['dot', '-Tpng', out_filename+'.dot', '-o', out_filename+'.png', '-Gdpi=600'])
+    call(['dot', '-Tpng', out_filename + '.dot', '-o', out_filename + '.png', '-Gdpi=600'])
     plt.figure(figsize=(14, 18))
-    plt.imshow(plt.imread(out_filename+'.png'))
+    plt.imshow(plt.imread(out_filename + '.png'))
     plt.axis('off')
 
 
-def plot_clusters(data, var1st, var2nd, clusters, centers: list, n_clusters: int, title: str,  ax: plt.Axes = None):
+def plot_clusters(data, var1st, var2nd, clusters, centers: list, n_clusters: int, title: str, ax: plt.Axes = None):
     if ax is None:
         ax = plt.gca()
     ax.scatter(data.iloc[:, var1st], data.iloc[:, var2nd], c=clusters, alpha=0.5, cmap=cfg.cmap_active)
@@ -223,9 +218,9 @@ def compute_centroids(data: DataFrame, labels: ndarray) -> list:
         if k != -1:
             cluster = ext_data[ext_data['cluster'] == k]
             centers[k] = list(cluster.sum(axis=0))
-            centers[k] = [centers[k][j]/len(cluster) if len(cluster) > 0 else 0 for j in range(n_vars)]
+            centers[k] = [centers[k][j] / len(cluster) if len(cluster) > 0 else 0 for j in range(n_vars)]
         else:
-            centers[k] = [0]*n_vars
+            centers[k] = [0] * n_vars
 
     return centers
 
@@ -237,7 +232,7 @@ def compute_mse(X: ndarray, labels: list, centroids: list) -> float:
     partial = list(partial * partial)
     partial = [sum(el) for el in partial]
     partial = sum(partial)
-    return math.sqrt(partial) / (n-1)
+    return partial / (n - 1)
 
 
 def compute_rmse(X: ndarray, labels: list, centroids: list) -> float:
@@ -247,7 +242,7 @@ def compute_rmse(X: ndarray, labels: list, centroids: list) -> float:
     partial = list(partial * partial)
     partial = [sum(el) for el in partial]
     partial = sum(partial)
-    return math.sqrt(partial / (n-1))
+    return math.sqrt(partial / (n - 1))
 
 
 def compute_mae(X: ndarray, labels: list, centroids: list) -> float:
@@ -257,8 +252,7 @@ def compute_mae(X: ndarray, labels: list, centroids: list) -> float:
     partial = list(abs(partial))
     partial = [sum(el) for el in partial]
     partial = sum(partial)
-    return partial/(n-1)
-
+    return partial / (n - 1)
 
 
 def two_scales(ax1, time, data1, data2, c1, c2, xlabel='', ylabel1='', ylabel2=''):
@@ -281,6 +275,7 @@ def dummify(df, vars_to_dummify):
     dummy = DataFrame(trans_X, columns=new_vars, index=X.index)
     final_df = concat([df[other_vars], dummy], axis=1)
     return final_df
+
 
 def get_variable_types(df: DataFrame) -> dict:
     variable_types: dict = {
@@ -305,8 +300,10 @@ def get_variable_types(df: DataFrame) -> dict:
             variable_types['Symbolic'].append(c)
     return variable_types
 
+
 def plot_overfitting_study(xvalues, prd_trn, prd_tst, name, xlabel, ylabel, extra=""):
     evals = {'Train': prd_trn, 'Test': prd_tst}
     plt.figure()
-    multiple_line_chart(xvalues, evals, ax = None, title=f'Overfitting {name}', xlabel=xlabel, ylabel=ylabel, percentage=True)
+    multiple_line_chart(xvalues, evals, ax=None, title=f'Overfitting {name}', xlabel=xlabel, ylabel=ylabel,
+                        percentage=True)
     plt.savefig(f'images/overfitting_{extra}.png')

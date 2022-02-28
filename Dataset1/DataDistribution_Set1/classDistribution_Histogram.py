@@ -9,14 +9,14 @@ import os
 register_matplotlib_converters()
 currentPath = "/".join(os.path.abspath(__file__).split("/")[:-1])
 filename =   '../../data/NYC_collisions_tabular.csv'
+filename = "../teste_to_use.csv"
 
 data = pd.read_csv(filename, index_col="UNIQUE_ID", na_values='', parse_dates=True, infer_datetime_format=True)
-data = data.drop(["VEHICLE_ID", "COLLISION_ID"], axis=1)
+#data = data.drop(["VEHICLE_ID", "COLLISION_ID"], axis=1)
 
-data = data.loc[(data['PERSON_AGE'] < 140) & (data['PERSON_AGE'] >= 0)]
+#data = data.loc[(data['PERSON_AGE'] < 140) & (data['PERSON_AGE'] >= 0)]
 
 symbolic_vars = get_variable_types(data)['Symbolic']
-symbolic_vars = ['PERSON_INJURY']
 if not symbolic_vars:
     raise ValueError('There are no symbolic variables.')
 

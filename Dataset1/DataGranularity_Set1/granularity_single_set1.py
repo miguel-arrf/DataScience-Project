@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from pandas import read_csv
 from ds_charts import get_variable_types, choose_grid, HEIGHT
 from matplotlib.pyplot import subplots, savefig, show
@@ -23,5 +24,6 @@ for n in range(len(variables)):
     axs[i, j].set_ylabel('nr records')
     axs[i, j].hist(data[variables[n]].values, bins=100)
     i, j = (i + 1, 0) if (n+1) % cols == 0 else (i, j + 1)
-savefig('../DataGranularity_Set1/images/granularity_single.png')
+plt.tight_layout()
+savefig('../DataGranularity_Set1/images/granularity_single.png', dpi=300)
 show()

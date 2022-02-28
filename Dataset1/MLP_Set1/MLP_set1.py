@@ -17,7 +17,7 @@ labels = unique(trnY)
 labels.sort()
 
 lr_type = ['constant', 'invscaling', 'adaptive']
-max_iter = [100, 300, 500, 750, 1000, 2500, 5000]
+max_iter = [100, 300, 500, 750]#, 1000, 2500, 5000]
 learning_rate = [.01, .1, .3, .5]
 best = ('', 0, 0)
 last_best = 0
